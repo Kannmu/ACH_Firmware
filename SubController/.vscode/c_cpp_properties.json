@@ -1,0 +1,55 @@
+{
+  "configurations": [
+    {
+      "name": "Win32",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/Core/Inc",
+        "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32H7xx/Include",
+        "${workspaceFolder}/Drivers/CMSIS/Include",
+        "${workspaceFolder}/Drivers/STM32H7xx_HAL_Driver/Inc",
+        "${workspaceFolder}/Drivers/STM32H7xx_HAL_Driver/Inc/Legacy"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE",
+        "USE_HAL_DRIVER",
+        "STM32H750xx"
+      ],
+      "compilerPath": "C:/MinGW/mingw64/bin/gcc.exe",
+      "intelliSenseMode": "windows-gcc-arm",
+      "cStandard": "c17",
+      "cppStandard": "gnu++17"
+    },
+    {
+      "name": "STM32",
+      "includePath": [
+        "Core/Inc",
+        "Drivers/CMSIS/Device/ST/STM32H7xx/Include",
+        "Drivers/CMSIS/Include",
+        "Drivers/STM32H7xx_HAL_Driver/Inc",
+        "Drivers/STM32H7xx_HAL_Driver/Inc/Legacy"
+      ],
+      "defines": [
+        "STM32H750xx",
+        "USE_HAL_DRIVER"
+      ],
+      "compilerPath": "D:\\SOFTWARE\\GCC-ARM-NONE-EABI-10.3-2021.10\\BIN\\ARM-NONE-EABI-GCC.EXE",
+      "intelliSenseMode": "gcc-arm",
+      "mergeConfigurations": false,
+      "browse": {
+        "path": [
+          "c:/Users/14623/OneDrive/Projects/ACH/Software/SubController/Core/Inc",
+          "c:/Users/14623/OneDrive/Projects/ACH/Software/SubController/Drivers/CMSIS/Device/ST/STM32H7xx/Include",
+          "c:/Users/14623/OneDrive/Projects/ACH/Software/SubController/Drivers/CMSIS/Include",
+          "c:/Users/14623/OneDrive/Projects/ACH/Software/SubController/Drivers/STM32H7xx_HAL_Driver/Inc",
+          "c:/Users/14623/OneDrive/Projects/ACH/Software/SubController/Drivers/STM32H7xx_HAL_Driver/Inc/Legacy",
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ],
+  "version": 4
+}

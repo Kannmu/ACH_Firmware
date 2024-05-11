@@ -22,6 +22,8 @@
 *.la
 *.lo
 
+
+
 # Shared objects (inc. Windows DLLs)
 *.dll
 *.so
@@ -50,3 +52,36 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*.rar
+*.o
+*.d
+*.crf
+*.htm
+*.dep
+*.map
+*.bak
+*.lnp
+*.lst
+*.ini
+*.iex
+*.sct
+*.scvd
+*.uvguix
+*.dbg*
+*.uvguix.*
+.mxproject
+
+RTE/
+Templates/
+Examples/
+build/
+
+!*.uvprojx
+!*.h
+!*.c
+!*.ioc
+!*.axf
+!*.bin
+!*.hex
+
