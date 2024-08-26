@@ -7,12 +7,15 @@
         "math.h": "c",
         "stm32h7xx.h": "c"
     },
-    "C_Cpp.default.compilerPath": "C:\\MinGW\\mingw64\\bin\\",
+    "C_Cpp.default.compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
     "cSpell.words": [
-        "FDCAN"
+        "FDCAN",
+        "SYSTICK"
     ],
     "stm32-for-vscode.openOCDPath": "C:\\USERS\\14623\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-3.1\\.CONTENT\\BIN\\OPENOCD.EXE",
     "stm32-for-vscode.makePath": "D:\\SOFTWARE\\MINGW\\BIN\\MAKE.EXE",
     "cortex-debug.armToolchainPath": "D:\\SOFTWARE\\GCC-ARM-NONE-EABI-10.3-2021.10\\BIN",
-    "cortex-debug.openocdPath": "C:\\USERS\\14623\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-3.1\\.CONTENT\\BIN\\OPENOCD.EXE"
+    "cortex-debug.openocdPath": "C:\\USERS\\14623\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-3.1\\.CONTENT\\BIN\\OPENOCD.EXE",
+    "cortex-debug.variableUseNaturalFormat": true,
+    "stm32-for-vscode.armToolchainPath": "D:\\SOFTWARE\\GCC-ARM-NONE-EABI-10.3-2021.10\\BIN"
 }

@@ -61,7 +61,15 @@ Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c \
-Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
+Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c \
+Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
+Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
+Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
+Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
+USB_DEVICE/App/usb_device.c \
+USB_DEVICE/App/usbd_cdc_if.c \
+USB_DEVICE/App/usbd_desc.c \
+USB_DEVICE/Target/usbd_conf.c
 
 
 CPP_SOURCES = \
@@ -137,7 +145,11 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32H7xx/Include \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32H7xx_HAL_Driver/Inc \
--IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy
+-IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy \
+-IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
+-IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc \
+-IUSB_DEVICE/App \
+-IUSB_DEVICE/Target
 
 
 
