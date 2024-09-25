@@ -63,81 +63,26 @@ static DMA_HandleTypeDef DMAs[5];
 
 const char *pins[] =
     {
-        "PC11",
-        "PD2",
-        "PD4",
-        "PD6",
-        "PB4",
-        "PB6",
-        "PB8",
-        "PE0",
+        "PC11","PD2","PD4","PD6","PB4","PB6","PB8","PE0",
 
-        "PC12",
-        "PD3",
-        "PD5",
-        "PD7",
-        "PB5",
-        "PB7",
-        "PB9",
-        "PE1",
+        "PC12","PD3","PD5","PD7","PB5","PB7","PB9","PE1",
 
-        "PA3",
-        "PA1",
-        "PC3",
-        "PC1",
-        "PC15",
-        "PC13",
-        "PE5",
-        "PE3",
+        "PA3","PA1","PC3","PC1","PC15","PC13","PE5","PE3",
 
-        "PA2",
-        "PA0",
-        "PC2",
-        "PC0",
-        "PC14",
-        "PE6",
-        "PE4",
-        "PE2",
+        "PA2","PA0","PC2","PC0","PC14","PE6","PE4","PE2",
 
-        "PC9",
-        "PC7",
-        "PD15",
-        "PD13",
-        "PD11",
-        "PD9",
-        "PB15",
-        "PB13",
+        "PC9","PC7","PD15","PD13","PD11","PD9","PB15","PB13",
 
-        "PC8",
-        "PC6",
-        "PD14",
-        "PD12",
-        "PD10",
-        "PD8",
-        "PB14",
-        "PB12",
+        "PC8","PC6","PD14","PD12","PD10","PD8","PB14","PB12",
 
-        "PE15",
-        "PE13",
-        "PE11",
-        "PE9",
-        "PE7",
-        "PB1",
-        "PC5",
-        "PA7",
+        "PE15","PE13","PE11","PE9","PE7","PB1","PC5","PA7",
 
-        "PE14",
-        "PE12",
-        "PE10",
-        "PE8",
-        "PB2",
-        "PB0",
-        "PC4",
-        "PA6",
+        "PE14","PE12","PE10","PE8","PB2","PB0","PC4","PA6",
 
-        "PC10"};
+        "PC10"
+    };
 
-const double calibe_times[] =
+const double calibration_times[] =
     {
       8.8, 9.5, 11, 20.6, 7.4, 21.5, 21.5, 8.5,
       20.6, 21, 19.4, 7, 20, 20.6, 6.4, 20.6,
@@ -795,7 +740,6 @@ void UpdateDMA_Buffer()
       }
     }
   }
-  
 }
 
 void UpdateDMA_BufferWith_Duty_AM()
@@ -887,7 +831,7 @@ void SubControllerInit()
     TDs[i]->port = map_pin_name_to_gpio_port(pins[i]);
     TDs[i]->port_num = map_pin_name_to_gpio_port_num(pins[i]);
     TDs[i]->pin = map_pin_name_to_pin_number(pins[i]);
-    TDs[i]->calib = calibe_times[i]*BufferGapPerMicroseconds;
+    TDs[i]->calib = calibration_times[i]*BufferGapPerMicroseconds;
     TDs[i]->row = i / ArraySize;
     TDs[i]->column = i % ArraySize;
     TDs[i]->coordinate[0] = (TDs[i]->row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
@@ -930,8 +874,6 @@ void UpdateTransducers(Simulation S)
   }
 
   DMA_Buffer_Update;
-  // UpdateDMA_Buffer(T);
-  // UpdateDMA_BufferWith_Duty_AM(T);
 }
 
 double EulerDistance(const double From[3], const double To[3])
