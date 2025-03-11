@@ -1,5 +1,13 @@
 #include "debug.h"
 
+// debug.c
+const uint8_t LiveLEDPeriod = 1;
+uint16_t LEDTicks = 0;
+uint16_t DeltaTicks = 0;
+uint32_t FPS = 0;
+uint32_t Timebase = 0;
+
+
 void CalculateFPS()
 {
     // Calculate DeltaTicks

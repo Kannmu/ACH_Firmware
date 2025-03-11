@@ -15,11 +15,13 @@
 # define LED0_GPIO_Port_Num 0U
 
 // Debug Parameters
-const uint8_t LiveLEDPeriod = 1;
-uint16_t LEDTicks = 0;
-uint16_t DeltaTicks = 0;
-uint32_t FPS = 0;
-uint32_t Timebase = 0;
+// debug.h
+extern const uint8_t LiveLEDPeriod;
+extern uint16_t LEDTicks;
+extern uint16_t DeltaTicks;
+extern uint32_t FPS;
+extern uint32_t Timebase;
+
 
 void IndicateLEDBlink();
 void SendDebuggingInfo();

@@ -8,7 +8,8 @@
         "stm32h7xx.h": "c",
         "transducer.h": "c",
         "simulation.h": "c",
-        "debug.h": "c"
+        "debug.h": "c",
+        "dma_manager.h": "c"
     },
     "C_Cpp.default.compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
     "cSpell.words": [

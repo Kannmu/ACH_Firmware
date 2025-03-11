@@ -1,5 +1,13 @@
 #include "dma_manager.h"
 
+const float GPIO_Group_Output_Offset[5] = {0U, 3, 6.5, 9, 11.5};
+
+uint8_t DMA_Enable_Flag = 0;
+
+DMA_HandleTypeDef* DMA_Stream_Handles[5];
+
+uint16_t DMA_Buffer[5][DMA_Buffer_Resolution] __attribute__((section(".dma")));
+
 void DMA_Init()
 {
     DMA_Stream_Handles[0] = &hdma_memtomem_dma1_stream0;

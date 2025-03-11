@@ -1,5 +1,7 @@
 #include "simulation.h"
 
+Point Trajectory[TrajectoryPointsCount] = {0};
+
 void CreateCircleTrajectory()
 {
     for (size_t i = 0l; i < TrajectoryPointsCount; i++)

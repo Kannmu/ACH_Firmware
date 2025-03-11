@@ -62,7 +62,8 @@ static void MX_FDCAN1_Init(void);
 static void MX_TIM1_Init(void);
 
 /* USER CODE BEGIN PFP */
-
+DMA_HandleTypeDef hdma_memtomem_dma1_stream0;
+DMA_HandleTypeDef hdma_memtomem_dma1_stream1; DMA_HandleTypeDef hdma_memtomem_dma1_stream2; DMA_HandleTypeDef hdma_memtomem_dma2_stream0; DMA_HandleTypeDef hdma_memtomem_dma2_stream1; DMA_HandleTypeDef hdma_memtomem_dma2_stream3;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/

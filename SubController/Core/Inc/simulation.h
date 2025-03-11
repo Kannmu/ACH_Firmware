@@ -30,8 +30,9 @@ typedef struct
   float strength;     // Overall strength Coefficient, Default to 100
   float spread; // Variance of the distribution for the target position
 }Point;
+// simulation.h
+extern Point Trajectory[TrajectoryPointsCount];
 
-Point Trajectory[TrajectoryPointsCount] = {0};
 
 void CreateCircleTrajectory();
 
