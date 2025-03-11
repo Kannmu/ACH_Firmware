@@ -65,7 +65,7 @@ typedef struct
   double spread; // Variance of the distribution for the target position
 }Simulation;
 
-// extern struct Transducer TDs[64];
+// extern struct Transducer TransducerArray[64];
 
 /* USER CODE END ET */
 
@@ -73,7 +73,7 @@ typedef struct
 /* USER CODE BEGIN EC */
 
 // extern uint8_t SYSTICK;
-// extern uint16_t MainFrequency;
+// extern uint16_t transducer_base_freq;
 
 extern uint16_t LEDTicks;
 extern uint32_t Timebase;
@@ -120,21 +120,25 @@ void DisableDMAs(void);
 
 # define PhaseTuningMode 0
 
-# define CircleMode 0
+# define CircleMode 1
 
 # define TwinTrap 0
 
+# define CircleFrequency 1U
 
+# define CirclePeriodInMillisecond (1.0/CircleFrequency)*1000U
+
+# define CircleRadius 0.01
 
 # define LED0_GPIO_Port_Num 0U
 
 # define pi 3.1415926535
 # define SoundSpeed 343.2
-# define NumTransducer (sizeof(pins) / sizeof(pins[0]))
+# define NumTransducer (sizeof(transducer_pins) / sizeof(transducer_pins[0]))
 
-# define MainFrequency 40000UL
+# define transducer_base_freq 40000UL
 
-# define Wave_K ((2*pi*MainFrequency)/SoundSpeed)
+# define Wave_K ((2*pi*transducer_base_freq)/SoundSpeed)
 
 # define DMABaseNum (1024*6515) 
 
@@ -142,22 +146,22 @@ void DisableDMAs(void);
 
 # define CarrierFrequency 200U
 # define DMA_Buffer_Resolution (DMABaseNum/CarrierFrequency)
-# define MainWaveLengthInBuffer (DMABaseNum/(MainFrequency))
+# define MainWaveLengthInBuffer (DMABaseNum/(transducer_base_freq))
 # define DMA_Buffer_Update UpdateDMA_BufferWith_Duty_AM()
 
 # else
 
-# define DMA_Buffer_Resolution ((uint16_t)(DMABaseNum/MainFrequency))
+# define DMA_Buffer_Resolution ((uint16_t)(DMABaseNum/transducer_base_freq))
 # define MainWaveLengthInBuffer (DMA_Buffer_Resolution)
 # define DMA_Buffer_Update UpdateDMA_Buffer()
 
 # endif
 
-# define TimeGapPerDMABufferBit ((long double)(1.0/(MainFrequency*DMA_Buffer_Resolution)))
+# define TimeGapPerDMABufferBit ((long double)(1.0/(transducer_base_freq*DMA_Buffer_Resolution)))
 
 # define BufferGapPerMicroseconds ((float)(1e-6)/TimeGapPerDMABufferBit)
 
-# define TransducerPeriod  ((long double)(1.0 / MainFrequency))
+# define TransducerPeriod  ((long double)(1.0 / transducer_base_freq))
 
 # define WaveLength (TransducerPeriod*SoundSpeed)
 

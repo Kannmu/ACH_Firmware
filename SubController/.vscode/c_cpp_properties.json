@@ -41,7 +41,7 @@
         "STM32H750xx",
         "USE_HAL_DRIVER"
       ],
-      "compilerPath": "D:\\SOFTWARE\\GCC-ARM-NONE-EABI-10.3-2021.10\\BIN\\ARM-NONE-EABI-GCC.EXE",
+      "compilerPath": "D:\\SOFTWARE\\GCC-ARM-NONE-EABI-10.3-2021.10\\BIN\\arm-none-eabi-gcc.EXE",
       "intelliSenseMode": "gcc-arm",
       "mergeConfigurations": false,
       "browse": {

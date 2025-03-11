@@ -190,9 +190,9 @@ void SysTick_Handler(void)
   /* USER CODE BEGIN SysTick_IRQn 0 */
   LEDTicks += 1;
 
-  if(Timebase < 1e4) Timebase += 1; else Timebase = 0;
+  if(Timebase < 3000U) Timebase += 1; else Timebase = 0;
   
-  CalculateFPS();
+  // CalculateFPS();
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */

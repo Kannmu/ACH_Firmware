@@ -61,47 +61,45 @@ static DMA_HandleTypeDef DMAs[5];
 
 /* USER CODE BEGIN PV */
 
-const char *pins[] =
+const char *transducer_pins[] =
     {
-        "PC11","PD2","PD4","PD6","PB4","PB6","PB8","PE0",
+        "PC11", "PD2", "PD4", "PD6", "PB4", "PB6", "PB8", "PE0",
 
-        "PC12","PD3","PD5","PD7","PB5","PB7","PB9","PE1",
+        "PC12", "PD3", "PD5", "PD7", "PB5", "PB7", "PB9", "PE1",
 
-        "PA3","PA1","PC3","PC1","PC15","PC13","PE5","PE3",
+        "PA3", "PA1", "PC3", "PC1", "PC15", "PC13", "PE5", "PE3",
 
-        "PA2","PA0","PC2","PC0","PC14","PE6","PE4","PE2",
+        "PA2", "PA0", "PC2", "PC0", "PC14", "PE6", "PE4", "PE2",
 
-        "PC9","PC7","PD15","PD13","PD11","PD9","PB15","PB13",
+        "PC9", "PC7", "PD15", "PD13", "PD11", "PD9", "PB15", "PB13",
 
-        "PC8","PC6","PD14","PD12","PD10","PD8","PB14","PB12",
+        "PC8", "PC6", "PD14", "PD12", "PD10", "PD8", "PB14", "PB12",
 
-        "PE15","PE13","PE11","PE9","PE7","PB1","PC5","PA7",
+        "PE15", "PE13", "PE11", "PE9", "PE7", "PB1", "PC5", "PA7",
 
-        "PE14","PE12","PE10","PE8","PB2","PB0","PC4","PA6",
+        "PE14", "PE12", "PE10", "PE8", "PB2", "PB0", "PC4", "PA6",
 
-        "PC10"
-    };
+        "PC10"};
 
-const double calibration_times[] =
+const double Transducer_calibration_array[] =
     {
-      8.8, 9.5, 11, 20.6, 7.4, 21.5, 21.5, 8.5,
-      20.6, 21, 19.4, 7, 20, 20.6, 6.4, 20.6,
-      19.4, 6.8, 19.5, 20.4, 7.3, 20, 8.2, 20.3,
-      7.5, 19, 19.7, 6.5, 19.4, 7, 9.4, 9.5,
-      9, 9.6, 5, 6.8, 18.3, 17.8, 19.3, 8.2,
-      8.2, 20.4, 7.9, 6.7, 5.4, 7, 20.1, 21.6,
-      19, 20.6, 19.2, 20.7, 7, 18.5, 6.8, 19.7,
-      5.6, 10.6, 9.2, 20.3, 19.7, 6.4, 18.2, 2.2,
-      0
-    };
+        8.8, 9.5, 11, 20.6, 7.4, 21.5, 21.5, 8.5,
+        20.6, 21, 19.4, 7, 20, 20.6, 6.4, 20.6,
+        19.4, 6.8, 19.5, 20.4, 7.3, 20, 8.2, 20.3,
+        7.5, 19, 19.7, 6.5, 19.4, 7, 9.4, 9.5,
+        9, 9.6, 5, 6.8, 18.3, 17.8, 19.3, 8.2,
+        8.2, 20.4, 7.9, 6.7, 5.4, 7, 20.1, 21.6,
+        19, 20.6, 19.2, 20.7, 7, 18.5, 6.8, 19.7,
+        5.6, 10.6, 9.2, 20.3, 19.7, 6.4, 18.2, 2.2,
+        0};
 
-static uint16_t dma_buff[5][DMA_Buffer_Resolution] __attribute__((section(".dma")));
+static uint16_t Transducer_dma_buff[5][DMA_Buffer_Resolution] __attribute__((section(".dma")));
 
-const float GPIO_Output_Offset[5] = {0U, 3, 6.5, 9, 11.5};
+const float GPIO_output_offset[5] = {0U, 3, 6.5, 9, 11.5};
 // MCU Parameters
 
 // Transducer Array
-struct Transducer* TDs[NumTransducer];
+struct Transducer *TransducerArray[NumTransducer];
 
 // Debug Parameters
 const uint8_t LiveLEDPeriod = 1;
@@ -110,7 +108,7 @@ uint16_t DeltaTicks = 0;
 uint32_t FPS = 0;
 uint32_t Timebase = 0;
 uint8_t DMA_Enable_Flag = 0;
-double TestFocusPointDistance = 0.1;
+double TestFocusPointDistance = 0.08;
 
 /* USER CODE END PV */
 
@@ -137,12 +135,13 @@ void CalculateFPS();
 void UpdateTransducers(Simulation S);
 double EulerDistance(const double From[3], const double To[3]);
 void FullFire();
-void SingleFire(Transducer *,uint8_t);
+void SingleFire(Transducer *, uint8_t);
 void UpdateDMA_Buffer();
 void UpdateDMA_BufferWith_Duty_AM();
 void CleanDMABuffer();
 void EnableDMAs();
 void DisableDMAs();
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -168,6 +167,7 @@ int main(void)
 
   /* USER CODE BEGIN Init */
   // Initiation
+
   SubControllerInit();
 
   /* USER CODE END Init */
@@ -193,23 +193,21 @@ int main(void)
   DMAs[2] = hdma_memtomem_dma1_stream2;
   DMAs[3] = hdma_memtomem_dma2_stream0;
   DMAs[4] = hdma_memtomem_dma2_stream1;
+  
 
-  // uint8_t TDNum = 0;
-
-# if PhaseTuningMode == 1
-  FullFire(TDs);
-# endif
-
-  StartDMAs();
-
-# if CircleMode == 1
+#if PhaseTuningMode == 1
+    FullFire(TransducerArray);
+#else
+    StartDMAs();
+  #if CircleMode == 1
     Simulation Circle;
-    Circle.position[0] = -0.005;                      // X
-    Circle.position[1] = 0;                           // Y
+    Circle.position[0] = -CircleRadius;          // X
+    Circle.position[1] = 0;                      // Y
     Circle.position[2] = TestFocusPointDistance; // Z
     Circle.spread = 0;
     Circle.strength = 100;
-# endif
+  #endif
+#endif
 
   /* USER CODE END 2 */
 
@@ -222,26 +220,17 @@ int main(void)
     // Begin Task
     IndicateLEDBlink();
 
-    // if (!HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin))
-    // {
-    //   TestFocusPointDistance += TestFocusPointDistance>0? -0.001:0;
-    // }
-    // if (!HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin))
-    // {
-    //   TestFocusPointDistance += TestFocusPointDistance<10? 0.001:0;
-    // }
+#if CircleMode == 1
+    Circle.position[0] = -CircleRadius * sin((2 * pi * (Timebase / CirclePeriodInMillisecond)));
+    Circle.position[1] = CircleRadius * cos((2 * pi * (Timebase / CirclePeriodInMillisecond)));
+    Circle.position[2] = TestFocusPointDistance;
+    UpdateTransducers(Circle);
+#endif
 
-# if CircleMode == 1
-      Circle.position[0] = -0.01*sin((2*pi*Timebase/2000));
-      Circle.position[1] = 0.01*cos((2*pi*Timebase/2000));
-      Circle.position[2] = TestFocusPointDistance;
-      UpdateTransducers(Circle);
-# endif
-
-    HAL_Delay(200);
+    // HAL_Delay(200);
 
     // SendDebuggingInfo();
-    
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -695,12 +684,11 @@ static void MX_GPIO_Init(void)
 
 void StartDMAs()
 {
-  HAL_DMA_Start(&hdma_memtomem_dma1_stream0, (uint32_t)(dma_buff[0]), (uint32_t)(&(GPIOA->ODR)), sizeof(dma_buff[0]) / sizeof(dma_buff[0][0]));
-  HAL_DMA_Start(&hdma_memtomem_dma1_stream1, (uint32_t)(dma_buff[1]), (uint32_t)(&(GPIOB->ODR)), sizeof(dma_buff[1]) / sizeof(dma_buff[1][0]));
-  HAL_DMA_Start(&hdma_memtomem_dma1_stream2, (uint32_t)(dma_buff[2]), (uint32_t)(&(GPIOC->ODR)), sizeof(dma_buff[2]) / sizeof(dma_buff[2][0]));
-  HAL_DMA_Start(&hdma_memtomem_dma2_stream0, (uint32_t)(dma_buff[3]), (uint32_t)(&(GPIOD->ODR)), sizeof(dma_buff[3]) / sizeof(dma_buff[3][0]));
-  HAL_DMA_Start(&hdma_memtomem_dma2_stream1, (uint32_t)(dma_buff[4]), (uint32_t)(&(GPIOE->ODR)), sizeof(dma_buff[4]) / sizeof(dma_buff[4][0]));
-  HAL_DMA_Start(&hdma_memtomem_dma2_stream3, (uint32_t)(dma_buff[5]), (uint32_t)(&(GPIOF->ODR)), sizeof(dma_buff[5]) / sizeof(dma_buff[5][0]));
+  HAL_DMA_Start(&hdma_memtomem_dma1_stream0, (uint32_t)(Transducer_dma_buff[0]), (uint32_t)(&(GPIOA->ODR)), sizeof(Transducer_dma_buff[0]) / sizeof(Transducer_dma_buff[0][0]));
+  HAL_DMA_Start(&hdma_memtomem_dma1_stream1, (uint32_t)(Transducer_dma_buff[1]), (uint32_t)(&(GPIOB->ODR)), sizeof(Transducer_dma_buff[1]) / sizeof(Transducer_dma_buff[1][0]));
+  HAL_DMA_Start(&hdma_memtomem_dma1_stream2, (uint32_t)(Transducer_dma_buff[2]), (uint32_t)(&(GPIOC->ODR)), sizeof(Transducer_dma_buff[2]) / sizeof(Transducer_dma_buff[2][0]));
+  HAL_DMA_Start(&hdma_memtomem_dma2_stream0, (uint32_t)(Transducer_dma_buff[3]), (uint32_t)(&(GPIOD->ODR)), sizeof(Transducer_dma_buff[3]) / sizeof(Transducer_dma_buff[3][0]));
+  HAL_DMA_Start(&hdma_memtomem_dma2_stream1, (uint32_t)(Transducer_dma_buff[4]), (uint32_t)(&(GPIOE->ODR)), sizeof(Transducer_dma_buff[4]) / sizeof(Transducer_dma_buff[4][0]));
   DMA_Enable_Flag = 1;
 }
 
@@ -727,16 +715,16 @@ void UpdateDMA_Buffer()
   // CleanDMABuffer();
   for (int i = 0; i < NumTransducer; i++)
   {
-    Transducer *TempT = TDs[i];
+    Transducer *TempT = TransducerArray[i];
     for (int j = 0; j < DMA_Buffer_Resolution; j++)
     {
-      if (((uint8_t)((j+ TempT->calib + TempT->shift_buffer_bits + (GPIO_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
+      if (((uint8_t)((j + TempT->calib + TempT->shift_buffer_bits + (GPIO_output_offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
       {
-        dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
+        Transducer_dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
       }
       else
       {
-        dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
+        Transducer_dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
       }
     }
   }
@@ -747,10 +735,10 @@ void UpdateDMA_BufferWith_Duty_AM()
   // CleanDMABuffer();
   for (int i = 0; i < NumTransducer; i++)
   {
-    Transducer *TempT = TDs[i];
+    Transducer *TempT = TransducerArray[i];
     for (int j = 0; j < DMA_Buffer_Resolution; j++)
     {
-      uint16_t Total_Index = (j + TempT->calib+ TempT->shift_buffer_bits + (GPIO_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds));
+      uint16_t Total_Index = (j + TempT->calib + TempT->shift_buffer_bits + (GPIO_output_offset[TempT->port_num] * BufferGapPerMicroseconds));
 
       double duty = 0.35 * sin((2.0 * pi * Total_Index) / DMA_Buffer_Resolution) + 0.6;
       // duty = 1;
@@ -759,11 +747,11 @@ void UpdateDMA_BufferWith_Duty_AM()
 
       if ((Total_Index % MainWaveLengthInBuffer) <= High_Level_Buffer_Length)
       {
-        dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
+        Transducer_dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
       }
       else
       {
-        dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
+        Transducer_dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
       }
     }
   }
@@ -771,22 +759,23 @@ void UpdateDMA_BufferWith_Duty_AM()
 
 void CleanDMABuffer()
 {
-  memset(dma_buff, 0x0000, sizeof(dma_buff));
+  memset(Transducer_dma_buff, 0x0000, sizeof(Transducer_dma_buff));
 }
 
 void SingleFire(Transducer *TempT, uint8_t Clean)
 {
-  if(Clean == 1U) CleanDMABuffer();
+  if (Clean == 1U)
+    CleanDMABuffer();
 
   for (int j = 0; j < DMA_Buffer_Resolution; j++)
   {
-    if (((uint16_t)((j+ TempT->calib + TempT->shift_buffer_bits + (GPIO_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
+    if (((uint16_t)((j + TempT->calib + TempT->shift_buffer_bits + (GPIO_output_offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
     {
-      dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
+      Transducer_dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
     }
     else
     {
-      dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
+      Transducer_dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
     }
   }
 }
@@ -796,16 +785,16 @@ void FullFire(Transducer *T[])
   CleanDMABuffer();
   for (int i = 0; i < NumTransducer; i++)
   {
-    Transducer *TempT = TDs[i];
+    Transducer *TempT = TransducerArray[i];
     for (int j = 0; j < DMA_Buffer_Resolution; j++)
     {
-      if (((uint16_t)((j+ TempT->calib + (GPIO_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
+      if (((uint16_t)((j + TempT->calib + (GPIO_output_offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
       {
-        dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
+        Transducer_dma_buff[TempT->port_num][j] |= (TempT->pin); // Set to High Level
       }
       else
       {
-        dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
+        Transducer_dma_buff[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
       }
     }
   }
@@ -826,23 +815,25 @@ void SubControllerInit()
 {
   for (int i = 0; i < NumTransducer; i++)
   {
-    TDs[i] = (Transducer *)malloc(sizeof(Transducer));
-    TDs[i]->Index = i;
-    TDs[i]->port = map_pin_name_to_gpio_port(pins[i]);
-    TDs[i]->port_num = map_pin_name_to_gpio_port_num(pins[i]);
-    TDs[i]->pin = map_pin_name_to_pin_number(pins[i]);
-    TDs[i]->calib = calibration_times[i]*BufferGapPerMicroseconds;
-    TDs[i]->row = i / ArraySize;
-    TDs[i]->column = i % ArraySize;
-    TDs[i]->coordinate[0] = (TDs[i]->row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
-    TDs[i]->coordinate[1] = (TDs[i]->column - (ArraySize / 2.0) + 0.5) * TransducerGap; // Y
-    TDs[i]->coordinate[2] = 0; // Z         
-    TDs[i]->phase = 0;                                                
-    TDs[i]->duty = 0.5;
-    TDs[i]->shift_buffer_bits = 0;
+    TransducerArray[i] = (Transducer *)malloc(sizeof(Transducer));
+    TransducerArray[i]->Index = i;
+    TransducerArray[i]->port = map_pin_name_to_gpio_port(transducer_pins[i]);
+    TransducerArray[i]->port_num = map_pin_name_to_gpio_port_num(transducer_pins[i]);
+    TransducerArray[i]->pin = map_pin_name_to_pin_number(transducer_pins[i]);
+    TransducerArray[i]->calib = Transducer_calibration_array[i] * BufferGapPerMicroseconds;
+    TransducerArray[i]->row = i / ArraySize;
+    TransducerArray[i]->column = i % ArraySize;
+    TransducerArray[i]->coordinate[0] = (TransducerArray[i]->row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
+    TransducerArray[i]->coordinate[1] = (TransducerArray[i]->column - (ArraySize / 2.0) + 0.5) * TransducerGap; // Y
+    TransducerArray[i]->coordinate[2] = 0;                                                          // Z
+    TransducerArray[i]->phase = 0;
+    TransducerArray[i]->duty = 0.5;
+    TransducerArray[i]->shift_buffer_bits = 0;
   }
 
+#if CircleMode == 0
   UpdateTransducers(TestShootParameters());
+#endif
 }
 
 Simulation TestShootParameters()
@@ -863,14 +854,15 @@ void UpdateTransducers(Simulation S)
   for (int i = 0; i < NumTransducer; i++)
   {
     // Distance Calculation
-    TDs[i]->distance = EulerDistance(TDs[i]->coordinate, S.position);
+    TransducerArray[i]->distance = EulerDistance(TransducerArray[i]->coordinate, S.position);
 
     // Distance to Phase
-    TDs[i]-> phase = (2 * pi) - (fmod((TDs[i]->distance * Wave_K), (2.0 * pi)));
+    TransducerArray[i]->phase = (2 * pi) - (fmod((TransducerArray[i]->distance * Wave_K), (2.0 * pi)));
 
-    if(TwinTrap == 1) TDs[i]-> phase += (TDs[i]->column>3) ? pi/2 : 2.5*pi;
+    if (TwinTrap == 1)
+      TransducerArray[i]->phase += (TransducerArray[i]->column > 3) ? pi / 2 : 2.5 * pi;
     // Phase to Gap Ticks
-    TDs[i]->shift_buffer_bits = (TDs[i]->phase / (2 * pi * MainFrequency)) / TimeGapPerDMABufferBit;
+    TransducerArray[i]->shift_buffer_bits = (TransducerArray[i]->phase / (2 * pi * transducer_base_freq)) / TimeGapPerDMABufferBit;
   }
 
   DMA_Buffer_Update;
@@ -910,7 +902,7 @@ void IndicateLEDBlink()
     // HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
     for (int i = 0; i < DMA_Buffer_Resolution; i++)
     {
-      dma_buff[LED0_GPIO_Port_Num][i] ^= LED0_Pin;
+      Transducer_dma_buff[LED0_GPIO_Port_Num][i] ^= LED0_Pin;
     }
     LEDTicks = 0;
   }
@@ -1049,7 +1041,7 @@ void Error_Handler(void)
 
   for (size_t i = 0; i < 64; ++i)
   {
-    free(TDs[i]);
+    free(TransducerArray[i]);
   }
 
   while (1)
