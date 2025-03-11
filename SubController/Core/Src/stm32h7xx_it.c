@@ -213,6 +213,7 @@ void SysTick_Handler(void)
 void TIM1_UP_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+  # if EnableCarrier
   if(DMA_Enable_Flag == 0)
   {
     EnableDMAs();
@@ -221,6 +222,7 @@ void TIM1_UP_IRQHandler(void)
   {
     DisableDMAs();
   }
+  # endif
   /* USER CODE END TIM1_UP_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */

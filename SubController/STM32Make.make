@@ -75,10 +75,15 @@ endif
 ######################################
 # C sources
 C_SOURCES =  \
+Core/Src/calibration.c \
+Core/Src/debug.c \
+Core/Src/dma_manager.c \
 Core/Src/main.c \
+Core/Src/simulation.c \
 Core/Src/stm32h7xx_hal_msp.c \
 Core/Src/stm32h7xx_it.c \
 Core/Src/system_stm32h7xx.c \
+Core/Src/transducer.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c \

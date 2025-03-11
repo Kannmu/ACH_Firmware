@@ -19,7 +19,7 @@
         "USE_HAL_DRIVER",
         "STM32H750xx"
       ],
-      "compilerPath": "C:/MinGW/mingw64/bin/gcc.exe",
+      "compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
       "intelliSenseMode": "windows-gcc-arm",
       "cStandard": "c17",
       "cppStandard": "gnu++17"
