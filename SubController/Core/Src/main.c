@@ -23,6 +23,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "dma_manager.h"
+#include "transducer.h"
+#include "simulation.h"
+#include "calibration.h"
+#include "debug.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,6 +57,13 @@ TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN PV */
 
+DMA_HandleTypeDef hdma_memtomem_dma1_stream0;
+DMA_HandleTypeDef hdma_memtomem_dma1_stream1; 
+DMA_HandleTypeDef hdma_memtomem_dma1_stream2; 
+DMA_HandleTypeDef hdma_memtomem_dma2_stream0; 
+DMA_HandleTypeDef hdma_memtomem_dma2_stream1; 
+DMA_HandleTypeDef hdma_memtomem_dma2_stream3;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,12 +75,12 @@ static void MX_FDCAN1_Init(void);
 static void MX_TIM1_Init(void);
 
 /* USER CODE BEGIN PFP */
-DMA_HandleTypeDef hdma_memtomem_dma1_stream0;
-DMA_HandleTypeDef hdma_memtomem_dma1_stream1; DMA_HandleTypeDef hdma_memtomem_dma1_stream2; DMA_HandleTypeDef hdma_memtomem_dma2_stream0; DMA_HandleTypeDef hdma_memtomem_dma2_stream1; DMA_HandleTypeDef hdma_memtomem_dma2_stream3;
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -107,22 +120,22 @@ int main(void)
   MX_FDCAN1_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  DMA_Init();
 
-  #if EnableCircleMode
-    CreateCircleTrajectory();
-  #endif
+  DMA_Init();
+  CreateTestTrajectory();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    DeltaTicks = SysTick->VAL;
+    sysTickDelta= SysTick->VAL;
 
     for(size_t i=0;i<TrajectoryPointsCount;i++)
     {
-      Transducer_UpdateAllPhase(Trajectory[i]);
+      UpdateFocusPoint(Trajectory[i]);
+      HAL_Delay(TrajectoryRefreshGap * 1000U);
     }
 
     /* USER CODE END WHILE */

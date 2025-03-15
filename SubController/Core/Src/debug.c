@@ -1,27 +1,25 @@
+#define _USE_MATH_DEFINES
 #include "debug.h"
 
 // debug.c
 const uint8_t LiveLEDPeriod = 1;
 uint16_t LEDTicks = 0;
-uint16_t DeltaTicks = 0;
+uint16_t sysTickDelta= 0;
 uint32_t FPS = 0;
 uint32_t Timebase = 0;
 
-
 void CalculateFPS()
 {
-    // Calculate DeltaTicks
-    if (SysTick->VAL < DeltaTicks)
-    {
-        DeltaTicks = SysTick->LOAD - DeltaTicks + SysTick->VAL;
+    static uint32_t lastTick = 0;
+    uint32_t currentTick = HAL_GetTick();
+    uint32_t tickDelta = currentTick - lastTick;
+    
+    if(tickDelta >= 1000) { // 每秒更新一次
+        // 使用SysTick计数器计算更精确的FPS
+        uint32_t cycleCount = (SystemCoreClock / 1000) * tickDelta;
+        FPS = cycleCount / sysTickDelta;
+        lastTick = currentTick;
     }
-    else
-    {
-        DeltaTicks = SysTick->VAL - DeltaTicks;
-    }
-
-    // Calculate FPS
-    FPS = (SystemCoreClock / (float)DeltaTicks);
 }
 
 void IndicateLEDBlink()
@@ -39,11 +37,13 @@ void IndicateLEDBlink()
 
 void SendDebuggingInfo()
 {
-    char TargetStr[100];
-    const char str[4] = "FPS:";
-
-    strcat(TargetStr, str);
-
+    // char TargetStr[100] = {0}; // 初始化为0
+    // char fpsStr[20];
+    
+    // sprintf(fpsStr, "FPS:%lu", FPS);
+    // strcat(TargetStr, fpsStr);
+    
+    // 如果需要发送数据
     // uint32_t len = strlen(TargetStr);
     // CDC_Transmit_FS(TargetStr, len);
 }

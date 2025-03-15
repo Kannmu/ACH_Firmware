@@ -31,15 +31,13 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "transducer.h"
-#include "dma_manager.h"
 
-#include "simulation.h"
-#include "debug.h"
-
+#define _USE_MATH_DEFINES
+// 标准库
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -49,10 +47,6 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
-extern uint16_t LEDTicks;
-extern uint32_t Timebase;
-extern uint8_t DMA_Enable_Flag;
 
 extern DMA_HandleTypeDef hdma_memtomem_dma1_stream0;
 extern DMA_HandleTypeDef hdma_memtomem_dma1_stream1;
@@ -71,14 +65,7 @@ extern DMA_HandleTypeDef hdma_memtomem_dma2_stream3;
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-// void Error_Handler(void);
-// void ToggleTransducer(Transducer T);
-// void UpdateTransducers(Simulation S, Transducer T[]);
 
-void CalculateFPS(void); 
-void SendDebuggingInfo(void);
-void EnableDMAs(void);
-void DisableDMAs(void);
 
 /* USER CODE END EFP */
 
@@ -86,8 +73,6 @@ void DisableDMAs(void);
 
 
 /* USER CODE BEGIN Private defines */
-
-# define pi 3.1415926535
 
 
 /* USER CODE END Private defines */

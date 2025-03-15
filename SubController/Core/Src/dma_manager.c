@@ -1,12 +1,17 @@
+#define _USE_MATH_DEFINES
 #include "dma_manager.h"
 
 const float GPIO_Group_Output_Offset[5] = {0U, 3, 6.5, 9, 11.5};
 
+const uint32_t BufferResolution = DMA_Buffer_Resolution;
+
 uint8_t DMA_Enable_Flag = 0;
+
+const uint16_t BufferGapPerMicroseconds = ((float)(1e-6)/TimeGapPerDMABufferBit);;
 
 DMA_HandleTypeDef* DMA_Stream_Handles[5];
 
-uint16_t DMA_Buffer[5][DMA_Buffer_Resolution] __attribute__((section(".dma")));
+__ALIGNED(32) uint16_t DMA_Buffer[5][DMA_Buffer_Resolution] __attribute__((section(".dma")));
 
 void DMA_Init()
 {
@@ -31,38 +36,54 @@ void StartDMAs()
 
 void EnableDMAs()
 {
+    __disable_irq();
     for (int i = 0; i < 5; i++)
     {
         __HAL_DMA_ENABLE(DMA_Stream_Handles[i]);
     }
     DMA_Enable_Flag = 1;
+    __enable_irq();
 }
 
 void DisableDMAs()
 {
+    __disable_irq();
     for (int i = 0; i < 5; i++)
     {
         __HAL_DMA_DISABLE(DMA_Stream_Handles[i]);
     }
     DMA_Enable_Flag = 0;
+    __enable_irq();
 }
 
-void UpdateDMA_Buffer()
+void UpdateAllDMABuffer()
 {
-    // CleanDMABuffer();
-    for (int i = 0; i < NumTransducer; i++)
+    for (size_t i = 0; i < NumTransducer; i++)
     {
-        Transducer *TempT = TransducerArray[i];
-        for (int j = 0; j < DMA_Buffer_Resolution; j++)
+        UpdateSingleDMABuffer(TransducerArray[i], Calib);
+    }
+}
+
+void UpdateSingleDMABuffer(Transducer *currentTransducer, enum ShootMode mode)
+{
+    const uint8_t port_num = currentTransducer->port_num;
+    const uint16_t pin = currentTransducer->pin;
+    
+    // 预计算常量部分
+    const uint16_t offset = (mode==Raw)? 0 :currentTransducer->calib + (mode==Raw)? 0 : currentTransducer->shift_buffer_bits + (GPIO_Group_Output_Offset[port_num] * BufferGapPerMicroseconds);
+    
+    // 计算半周期
+    const uint16_t half_period = BufferResolution / 2;
+
+    for (size_t j = 0; j < BufferResolution; j++)
+    {
+        if (((uint8_t)(offset) / half_period) % 2 == 0)
         {
-            if (((uint8_t)((j + TempT->calib + TempT->shift_buffer_bits + (GPIO_Group_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
-            {
-                DMA_Buffer[TempT->port_num][j] |= (TempT->pin); // Set to High Level
-            }
-            else
-            {
-                DMA_Buffer[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
-            }
+            DMA_Buffer[port_num][j] |= (pin); // Set to High Level
+        }
+        else
+        {
+            DMA_Buffer[port_num][j] &= ~(pin); // Set to Low Level
         }
     }
 }

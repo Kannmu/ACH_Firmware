@@ -1,10 +1,12 @@
-
-#include "transducer.h"
+#define _USE_MATH_DEFINES
 #include "calibration.h"
 #include "dma_manager.h"
+#include "transducer.h"
+
+float Wave_K = ((M_PI_2*Transducer_Base_Freq)/SoundSpeed);
 
 // Transducer Array
-const char *transducer_pins[] =
+const char *TransducerPins[] =
     {
         "PC11", "PD2", "PD4", "PD6", "PB4", "PB6", "PB8", "PE0",
 
@@ -23,84 +25,47 @@ const char *transducer_pins[] =
         "PE14", "PE12", "PE10", "PE8", "PB2", "PB0", "PC4", "PA6",
 
         "PC10"};
-struct Transducer *TransducerArray[NumTransducer];
+
+Transducer *TransducerArray[NumTransducer];
 
 void Transducer_Init(void)
 {
-    for (int i = 0; i < NumTransducer; i++)
+    for (size_t i = 0; i < NumTransducer; i++)
     {
         TransducerArray[i] = (Transducer *)malloc(sizeof(Transducer));
         TransducerArray[i]->Index = i;
-        TransducerArray[i]->port = map_pin_name_to_gpio_port(transducer_pins[i]);
-        TransducerArray[i]->port_num = map_pin_name_to_gpio_port_num(transducer_pins[i]);
-        TransducerArray[i]->pin = map_pin_name_to_pin_number(transducer_pins[i]);
+        TransducerArray[i]->port = map_pin_name_to_gpio_port(TransducerPins[i]);
+        TransducerArray[i]->port_num = map_pin_name_to_gpio_port_num(TransducerPins[i]);
+        TransducerArray[i]->pin = map_pin_name_to_pin_number(TransducerPins[i]);
         TransducerArray[i]->calib = Transducer_Calibration_Array[i] * BufferGapPerMicroseconds;
         TransducerArray[i]->row = i / ArraySize;
         TransducerArray[i]->column = i % ArraySize;
-        TransducerArray[i]->coordinate[0] = (TransducerArray[i]->row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
-        TransducerArray[i]->coordinate[1] = (TransducerArray[i]->column - (ArraySize / 2.0) + 0.5) * TransducerGap; // Y
-        TransducerArray[i]->coordinate[2] = 0;                                                                      // Z
+        TransducerArray[i]->position3D[0] = (TransducerArray[i]->row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
+        TransducerArray[i]->position3D[1] = (TransducerArray[i]->column - (ArraySize / 2.0) + 0.5) * TransducerGap; // Y
+        TransducerArray[i]->position3D[2] = 0;                                                                      // Z
         TransducerArray[i]->phase = 0;
         TransducerArray[i]->duty = 0.5;
         TransducerArray[i]->shift_buffer_bits = 0;
     }
 }
 
-void SingleFire(Transducer *TempT, uint8_t Clean)
-{
-    if (Clean == 1U)
-        CleanDMABuffer();
-    for (int j = 0; j < DMA_Buffer_Resolution; j++)
-    {
-        if (((uint16_t)((j + TempT->calib + TempT->shift_buffer_bits + (GPIO_Group_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
-        {
-            DMA_Buffer[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
-        }
-        else
-        {
-            DMA_Buffer[TempT->port_num][j] |= (TempT->pin); // Set to High Level
-        }
-    }
-}
-
-void FullFire(Transducer *T[])
-{
-    CleanDMABuffer();
-    for (int i = 0; i < NumTransducer; i++)
-    {
-        Transducer *TempT = TransducerArray[i];
-        for (int j = 0; j < DMA_Buffer_Resolution; j++)
-        {
-            if (((uint16_t)((j + TempT->calib + (GPIO_Group_Output_Offset[TempT->port_num] * BufferGapPerMicroseconds)) / (DMA_Buffer_Resolution / 2)) % 2 == 0))
-            {
-                DMA_Buffer[TempT->port_num][j] |= (TempT->pin); // Set to High Level
-            }
-            else
-            {
-                DMA_Buffer[TempT->port_num][j] &= ~(TempT->pin); // Set to Low Level
-            }
-        }
-    }
-}
-
 // Update Simulation to Transducers Parameters
-void Transducer_UpdateAllPhase(Point P)
+void UpdateFocusPoint(Point *P)
 {
     for (int i = 0; i < NumTransducer; i++)
     {
         // Distance Calculation
-        TransducerArray[i]->distance = EulerDistance(TransducerArray[i]->coordinate, P.position);
+        TransducerArray[i]->distance = EulerDistance(TransducerArray[i]->position3D, P->position);
 
         // Distance to Phase
-        TransducerArray[i]->phase = (2 * pi) - (fmod((TransducerArray[i]->distance * Wave_K), (2.0 * pi)));
+        TransducerArray[i]->phase = (M_PI_2) - (fmod((TransducerArray[i]->distance * Wave_K), (2.0 * M_PI)));
 
         if (TwinTrap == 1)
-            TransducerArray[i]->phase += (TransducerArray[i]->column > 3) ? pi / 2 : 2.5 * pi;
+            TransducerArray[i]->phase += (TransducerArray[i]->column > 3) ? M_PI / 2 : 2.5 * M_PI;
         // Phase to Gap Ticks
-        TransducerArray[i]->shift_buffer_bits = (TransducerArray[i]->phase / (2 * pi * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
+        TransducerArray[i]->shift_buffer_bits = (TransducerArray[i]->phase / (M_PI_2 * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
     }
-
-    DMA_Buffer_Update;
+    UPDATE_DMA_BUFFER;
 }
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *pin_name)
@@ -127,29 +92,12 @@ GPIO_TypeDef *map_pin_name_to_gpio_port(const char *pin_name)
     }
 }
 
-uint8_t map_pin_name_to_gpio_port_num(const char *pin_name)
-{
-    if (pin_name == NULL)
-        return 0;
+static const uint16_t port_num_map[] = {
+    ['A']=0, ['B']=1, ['C']=2, ['D']=3, ['E']=4
+};
 
-    switch (pin_name[1])
-    {
-    case 'A':
-        return 0U;
-    case 'B':
-        return 1U;
-    case 'C':
-        return 2U;
-    case 'D':
-        return 3U;
-    case 'E':
-        return 4U;
-    case 'F':
-        return 5U;
-    default:
-        // Error_Handler();
-        return 0U;
-    }
+uint8_t map_pin_name_to_gpio_port_num(const char *pin) {
+    return port_num_map[(int)pin[1]];
 }
 
 uint16_t map_pin_name_to_pin_number(const char *pin_name)

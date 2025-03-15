@@ -1,4 +1,6 @@
 #pragma once
+#include "main.h"
+#include "simulation.h"
 
 # define ArraySize 8
 # define TransducerGap (16.602 * (1e-3))
@@ -9,26 +11,12 @@
 
 # define Transducer_Base_Freq 40000UL
 
-# define Wave_K ((2*pi*Transducer_Base_Freq)/SoundSpeed)
-
-# define TimeGapPerDMABufferBit ((long double)(1.0/(Transducer_Base_Freq*DMA_Buffer_Resolution)))
-
-# define BufferGapPerMicroseconds ((float)(1e-6)/TimeGapPerDMABufferBit)
-
 # define TransducerPeriod  ((long double)(1.0 / Transducer_Base_Freq))
 
 # define WaveLength (TransducerPeriod*SoundSpeed)
 
-#include "main.h"
-#include "simulation.h"
 
-
-// transducer.h
-extern const char *transducer_pins[];
-
-
-extern struct Transducer *TransducerArray[NumTransducer];
-
+typedef struct Point Point;
 
 // Transducer Class
 typedef struct Transducer
@@ -36,7 +24,7 @@ typedef struct Transducer
     uint8_t Index;
     uint8_t row;
     uint8_t column;
-    float coordinate[3];
+    float position3D[3];
 
     GPIO_TypeDef *port;
     uint8_t port_num;
@@ -50,12 +38,19 @@ typedef struct Transducer
     float duty;
 } Transducer;
 
+typedef enum ShootMode
+{
+    Raw=0,Calib=1
+}ShootMode;
+
+extern const char *TransducerPins[];
+extern Transducer *TransducerArray[NumTransducer];
+
+extern float Wave_K;
 
 void Transducer_Init(void);
-void Transducer_UpdateAllPhase(Point);
+void UpdateFocusPoint(Point *P);
 
-void FullFire(Transducer *[]);
-void SingleFire(Transducer *, uint8_t);
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *);
 uint8_t map_pin_name_to_gpio_port_num(const char *);
 uint16_t map_pin_name_to_pin_number(const char *);

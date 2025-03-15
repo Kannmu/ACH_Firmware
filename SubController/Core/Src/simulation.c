@@ -1,14 +1,41 @@
+/* USER CODE BEGIN Header */
+/**
+ ******************************************************************************
+ * @file           : simulation.c
+ * @brief          : simulation
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
+#define _USE_MATH_DEFINES
 #include "simulation.h"
 
-Point Trajectory[TrajectoryPointsCount] = {0};
+Point *Trajectory[TrajectoryPointsCount] = {0};
+
+void CreateTestTrajectory()
+{
+    #if EnableCircleMode
+        CreateCircleTrajectory();
+    #endif
+}
 
 void CreateCircleTrajectory()
 {
+    uint16_t T = 0U;
     for (size_t i = 0l; i < TrajectoryPointsCount; i++)
     {
-        Trajectory[i].position[0] = -CircleRadius * sin((2 * pi * (Timebase / CirclePeriodInMillisecond)));
-        Trajectory[i].position[1] = CircleRadius * cos((2 * pi * (Timebase / CirclePeriodInMillisecond)));
-        Trajectory[i].position[2] = TestFocusPointDistance;
+        Trajectory[i]->position[0] = -CircleRadius * sin((M_PI_2 * (T / CirclePeriodInMillisecond)));
+        Trajectory[i]->position[1] = CircleRadius * cos((M_PI_2 * (T / CirclePeriodInMillisecond)));
+        Trajectory[i]->position[2] = TestFocusPointDistance;
+        T = T+TrajectoryRefreshGap;
     }
 }
 

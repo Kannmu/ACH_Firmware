@@ -9,7 +9,12 @@
         "transducer.h": "c",
         "simulation.h": "c",
         "debug.h": "c",
-        "dma_manager.h": "c"
+        "dma_manager.h": "c",
+        "main.h": "c",
+        "calibration.h": "c",
+        "stdint.h": "c",
+        "usb_device.h": "c",
+        "stm32h7xx_it.h": "c"
     },
     "C_Cpp.default.compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
     "cSpell.words": [

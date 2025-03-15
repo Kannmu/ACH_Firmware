@@ -1,6 +1,7 @@
 #pragma once
 #include "main.h"
 #include "dma_manager.h"
+// #include "dma_manager.h"
 
 #define KEY0_Pin GPIO_PIN_4
 #define KEY0_GPIO_Port GPIOA
@@ -18,7 +19,7 @@
 // debug.h
 extern const uint8_t LiveLEDPeriod;
 extern uint16_t LEDTicks;
-extern uint16_t DeltaTicks;
+extern uint16_t sysTickDelta;
 extern uint32_t FPS;
 extern uint32_t Timebase;
 
