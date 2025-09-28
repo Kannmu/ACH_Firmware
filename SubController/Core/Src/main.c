@@ -125,8 +125,6 @@ int main(void)
   
   DMA_Init();
 
-  
-
   // Create_Test_Trajectory();
 
   /* USER CODE END 2 */

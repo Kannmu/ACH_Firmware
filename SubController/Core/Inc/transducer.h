@@ -6,7 +6,7 @@
 
 # define TransducerGap (16.602 * (1e-3))
 
-# define NumTransducer 64U
+# define NumTransducer 65U
 
 # define SoundSpeed 343.2
 

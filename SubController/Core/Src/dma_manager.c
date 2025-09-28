@@ -2,6 +2,7 @@
 #include "dma_manager.h"
 
 const float GPIO_Group_Output_Offset[DMA_CHANNELS] = {0U, 3, 6.5, 9, 11.5};
+// const float GPIO_Group_Output_Offset[DMA_CHANNELS] = {0U, 0U, 0U, 0U, 0U};
 
 const uint32_t BufferResolution = DMA_Buffer_Resolution;
 
@@ -33,28 +34,9 @@ void Start_DMAs()
     HAL_DMA_Start(&hdma_memtomem_dma2_stream1, (uint32_t)(DMA_Buffer[4]), (uint32_t)(&(GPIOE->ODR)), sizeof(DMA_Buffer[4]) / sizeof(DMA_Buffer[4][0]));
 }
 
-void Enable_DMAs()
-{
-    __disable_irq();
-    for (int i = 0; i < 5; i++)
-    {
-        __HAL_DMA_ENABLE(DMA_Stream_Handles[i]);
-    }
-    __enable_irq();
-}
-
-void Disable_DMAs()
-{
-    __disable_irq();
-    for (int i = 0; i < 5; i++)
-    {
-        __HAL_DMA_DISABLE(DMA_Stream_Handles[i]);
-    }
-    __enable_irq();
-}
-
 void Update_All_DMABuffer(enum ShootMode mode)
 {
+    Clean_DMABuffer();
     for (size_t i = 0; i < NumTransducer; i++)
     {
         Update_Single_DMABuffer(&TransducerArray[i], mode);
@@ -70,15 +52,17 @@ void Update_Single_DMABuffer(Transducer *currentTransducer, enum ShootMode mode)
     // const uint16_t offset = (mode==Raw)? 0 :currentTransducer->calib + (mode==Raw)? 0 : currentTransducer->shift_buffer_bits + (GPIO_Group_Output_Offset[port_num] * BufferGapPerMicroseconds);
 
     uint16_t phase_offset = 0;
+
     if (mode != Raw) {
         // 这才是清晰的写法，而不是那堆垃圾三元运算符
         phase_offset = currentTransducer->calib + currentTransducer->shift_buffer_bits;
     }
+
     phase_offset += (uint16_t)(GPIO_Group_Output_Offset[port_num] * BufferGapPerMicroseconds);
     
     for (size_t j = 0; j < BufferResolution; j++)
     {
-        if ((uint8_t)((j + phase_offset) / half_period) % 2 == 0)
+        if ((uint16_t)((j + phase_offset) / half_period) % 2 == 0)
         {
             DMA_Buffer[port_num][j] |= (pin); // Set to High Level
         }
