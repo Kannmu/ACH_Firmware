@@ -2,13 +2,13 @@
 #include "debug.h"
 
 // debug.c
-const uint8_t LiveLEDPeriod = 1;
-uint16_t LEDTicks = 0;
-uint16_t sysTickDelta= 0;
+const uint8_t LIVE_LED_PERIOD = 1;
+uint16_t led_ticks = 0;
+uint32_t sysTickDelta= 0;
 uint32_t FPS = 0;
-uint32_t Timebase = 0;
+uint32_t time_base = 0;
 
-void CalculateFPS()
+void Calculate_FPS()
 {
     static uint32_t lastTick = 0;
     uint32_t currentTick = HAL_GetTick();
@@ -22,30 +22,27 @@ void CalculateFPS()
     }
 }
 
-void IndicateLEDBlink()
+void LED_Indicate_Blink()
 {
-    if (LEDTicks >= LiveLEDPeriod * 500)
+    const uint16_t LED_BLINK_THRESHOLD = LIVE_LED_PERIOD * 500U;
+    
+    if (led_ticks >= LED_BLINK_THRESHOLD)
     {
-        // HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+        // 使用DMA缓冲区控制LED
         for (int i = 0; i < DMA_Buffer_Resolution; i++)
         {
             DMA_Buffer[LED0_GPIO_Port_Num][i] ^= LED0_Pin;
         }
-        LEDTicks = 0;
+        led_ticks = 0U;
     }
+    led_ticks++;  // 添加计数器递增
 }
 
-void SendDebuggingInfo()
+
+void Send_Debugging_Info()
 {
-    // char TargetStr[100] = {0}; // 初始化为0
-    // char fpsStr[20];
-    
-    // sprintf(fpsStr, "FPS:%lu", FPS);
-    // strcat(TargetStr, fpsStr);
-    
-    // 如果需要发送数据
-    // uint32_t len = strlen(TargetStr);
-    // CDC_Transmit_FS(TargetStr, len);
+
+
 }
 
 void HAL_Delay_us(uint32_t nus)

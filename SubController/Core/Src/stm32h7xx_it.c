@@ -192,8 +192,8 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  Timebase = (Timebase + 1) % 3001;
-  LEDTicks++;
+  time_base = (time_base + 1) % 3001;
+  led_ticks++;
   
   // CalculateFPS();
   /* USER CODE END SysTick_IRQn 0 */
@@ -217,17 +217,6 @@ void TIM1_UP_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
 
-  # if EnableOOK
-  if(DMA_Enable_Flag == 0)
-  {
-    EnableDMAs();
-  }
-  else
-  {
-    DisableDMAs();
-  }
-  # endif
-  
   /* USER CODE END TIM1_UP_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */

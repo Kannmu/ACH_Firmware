@@ -20,26 +20,13 @@
 
 Point *Trajectory[TrajectoryPointsCount] = {0};
 
-void CreateTestTrajectory()
+void Create_Test_Trajectory()
 {
-    #if EnableCircleMode
-        CreateCircleTrajectory();
-    #endif
+
 }
 
-void CreateCircleTrajectory()
-{
-    uint16_t T = 0U;
-    for (size_t i = 0l; i < TrajectoryPointsCount; i++)
-    {
-        Trajectory[i]->position[0] = -CircleRadius * sin((M_PI_2 * (T / CirclePeriodInMillisecond)));
-        Trajectory[i]->position[1] = CircleRadius * cos((M_PI_2 * (T / CirclePeriodInMillisecond)));
-        Trajectory[i]->position[2] = TestFocusPointDistance;
-        T = T+TrajectoryRefreshGap;
-    }
-}
 
-float EulerDistance(const float From[3], const float To[3])
+float Euler_Distance(const float From[3], const float To[3])
 {
     float TempDistance = 0.0;
     for (int i = 0; i < 3; i++)

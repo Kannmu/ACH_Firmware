@@ -26,46 +26,45 @@ const char *TransducerPins[] =
 
         "PC10"};
 
-Transducer *TransducerArray[NumTransducer];
+Transducer TransducerArray[NumTransducer];
 
 void Transducer_Init(void)
 {
     for (size_t i = 0; i < NumTransducer; i++)
     {
-        TransducerArray[i] = (Transducer *)malloc(sizeof(Transducer));
-        TransducerArray[i]->Index = i;
-        TransducerArray[i]->port = map_pin_name_to_gpio_port(TransducerPins[i]);
-        TransducerArray[i]->port_num = map_pin_name_to_gpio_port_num(TransducerPins[i]);
-        TransducerArray[i]->pin = map_pin_name_to_pin_number(TransducerPins[i]);
-        TransducerArray[i]->calib = Transducer_Calibration_Array[i] * BufferGapPerMicroseconds;
-        TransducerArray[i]->row = i / ArraySize;
-        TransducerArray[i]->column = i % ArraySize;
-        TransducerArray[i]->position3D[0] = (TransducerArray[i]->row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
-        TransducerArray[i]->position3D[1] = (TransducerArray[i]->column - (ArraySize / 2.0) + 0.5) * TransducerGap; // Y
-        TransducerArray[i]->position3D[2] = 0;                                                                      // Z
-        TransducerArray[i]->phase = 0;
-        TransducerArray[i]->duty = 0.5;
-        TransducerArray[i]->shift_buffer_bits = 0;
+        // TransducerArray[i] = (Transducer *)malloc(sizeof(Transducer));
+        TransducerArray[i].index = i;
+        TransducerArray[i].port = map_pin_name_to_gpio_port(TransducerPins[i]);
+        TransducerArray[i].port_num = map_pin_name_to_gpio_port_num(TransducerPins[i]);
+        TransducerArray[i].pin = map_pin_name_to_pin_number(TransducerPins[i]);
+        TransducerArray[i].calib = Transducer_Calibration_Array[i] * BufferGapPerMicroseconds;
+        TransducerArray[i].row = i / ArraySize;
+        TransducerArray[i].column = i % ArraySize;
+        TransducerArray[i].position3D[0] = (TransducerArray[i].row - (ArraySize / 2.0) + 0.5) * TransducerGap;    // X
+        TransducerArray[i].position3D[1] = (TransducerArray[i].column - (ArraySize / 2.0) + 0.5) * TransducerGap; // Y
+        TransducerArray[i].position3D[2] = 0;                                                                      // Z
+        TransducerArray[i].distance = 0;
+        TransducerArray[i].phase = 0;
+        TransducerArray[i].duty = 0.5;
+        TransducerArray[i].shift_buffer_bits = 0;
     }
 }
 
 // Update Simulation to Transducers Parameters
-void UpdateFocusPoint(Point *P)
+void Update_Focus_Point(Point *P)
 {
     for (int i = 0; i < NumTransducer; i++)
     {
         // Distance Calculation
-        TransducerArray[i]->distance = EulerDistance(TransducerArray[i]->position3D, P->position);
+        TransducerArray[i].distance = Euler_Distance(TransducerArray[i].position3D, P->position);
 
         // Distance to Phase
-        TransducerArray[i]->phase = (M_PI_2) - (fmod((TransducerArray[i]->distance * Wave_K), (2.0 * M_PI)));
+        TransducerArray[i].phase = (M_PI_2) - (fmod((TransducerArray[i].distance * Wave_K), (2.0 * M_PI)));
 
-        if (TwinTrap == 1)
-            TransducerArray[i]->phase += (TransducerArray[i]->column > 3) ? M_PI / 2 : 2.5 * M_PI;
         // Phase to Gap Ticks
-        TransducerArray[i]->shift_buffer_bits = (TransducerArray[i]->phase / (M_PI_2 * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
+        TransducerArray[i].shift_buffer_bits = (TransducerArray[i].phase / (M_PI_2 * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
     }
-    UPDATE_DMA_BUFFER;
+    Update_All_DMABuffer(Calib);
 }
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *pin_name)

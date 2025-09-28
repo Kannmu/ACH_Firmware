@@ -121,8 +121,13 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
+  Transducer_Init();
+  
   DMA_Init();
-  CreateTestTrajectory();
+
+  
+
+  // Create_Test_Trajectory();
 
   /* USER CODE END 2 */
 
@@ -130,13 +135,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    sysTickDelta= SysTick->VAL;
+    sysTickDelta = SysTick->VAL;
 
-    for(size_t i=0;i<TrajectoryPointsCount;i++)
-    {
-      UpdateFocusPoint(Trajectory[i]);
-      HAL_Delay(TrajectoryRefreshGap * 1000U);
-    }
+    LED_Indicate_Blink();
+
+    // Calibration Mode Switch
+    Switch_Calibration_Mode();
+
+    // Update Trajectory
+
+    HAL_Delay(100);
 
     /* USER CODE END WHILE */
 
@@ -603,7 +611,7 @@ void Error_Handler(void)
 
   for (size_t i = 0; i < 64; ++i)
   {
-    free(TransducerArray[i]);
+    free(&TransducerArray[i]);
   }
 
   while (1)

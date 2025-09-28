@@ -22,46 +22,53 @@
 #include "dma_manager.h"
 #include "debug.h"
 
-// 校准参数说明：每个元素对应换能器的延迟校准值（单位：微秒us）
-float Transducer_Calibration_Array[] =
-{
-    8.8, 9.5, 11, 20.6, 7.4, 21.5, 21.5, 8.5,
-    20.6, 21, 19.4, 7, 20, 20.6, 6.4, 20.6,
-    19.4, 6.8, 19.5, 20.4, 7.3, 20, 8.2, 20.3,
-    7.5, 19, 19.7, 6.5, 19.4, 7, 9.4, 9.5,
-    9, 9.6, 5, 6.8, 18.3, 17.8, 19.3, 8.2,
-    8.2, 20.4, 7.9, 6.7, 5.4, 7, 20.1, 21.6,
-    19, 20.6, 19.2, 20.7, 7, 18.5, 6.8, 19.7,
-    5.6, 10.6, 9.2, 20.3, 19.7, 6.4, 18.2, 2.2,
-    0};
+int calibration_mode = 0; // 0 for not in calibration mode, 1 for in calibration mode
 
-void StartCalibration()
+// 校准参数说明：每个元素对应换能器的延迟校准值（单位：微秒us）
+float Transducer_Calibration_Array[] ={
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0
+};
+
+void Switch_Calibration_Mode()
 {
-    for(size_t i=0; i< NumTransducer;i++)
+    static GPIO_PinState lastKey0State = GPIO_PIN_SET;
+    GPIO_PinState currentKey0State = HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin);
+    // Toggle Calibration Mode
+    if(lastKey0State == GPIO_PIN_SET && currentKey0State == GPIO_PIN_RESET)
     {
-        UpdateSingleDMABuffer(TransducerArray[i], Raw);
-        WaitNextKeyPressed();
+        calibration_mode = 1 - calibration_mode;
+    }
+    lastKey0State = currentKey0State;
+    // Update LED1 State
+    if(calibration_mode)
+    {
+        for (int i = 0; i < DMA_Buffer_Resolution; i++)
+        {
+            DMA_Buffer[0U][i] &= ~LED1_Pin; // 拉低引脚：通过清零对应位实现
+        }
+        Update_All_DMABuffer(Raw);
+    }
+    else
+    {
+        for (int i = 0; i < DMA_Buffer_Resolution; i++)
+        {
+            DMA_Buffer[0U][i] |= LED1_Pin; // 拉高引脚：通过设置对应位实现
+        }
     }
 }
 
-void WaitNextKeyPressed()
+
+int Get_Calibration_Mode()
 {
-    //Chose KEY 1 as Next KEY
-    while(HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_SET)
-    {
-        // 等待按键被按下（假设按键按下时为低电平）
-        HAL_Delay(10); // 添加短暂延时防止CPU占用过高
-        IndicateLEDBlink(); // 在等待过程中保持LED闪烁
-    }
-    
-    // 等待按键释放
-    while(HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
-    {
-        HAL_Delay(10);
-    }
-    
-    // 按键消抖
-    HAL_Delay(50);
+    return calibration_mode;
 }
 
 

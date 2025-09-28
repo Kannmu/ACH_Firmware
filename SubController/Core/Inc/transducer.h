@@ -3,6 +3,7 @@
 #include "simulation.h"
 
 # define ArraySize 8
+
 # define TransducerGap (16.602 * (1e-3))
 
 # define NumTransducer 64U
@@ -15,13 +16,12 @@
 
 # define WaveLength (TransducerPeriod*SoundSpeed)
 
-
 typedef struct Point Point;
 
 // Transducer Class
 typedef struct Transducer
 {
-    uint8_t Index;
+    uint8_t index;
     uint8_t row;
     uint8_t column;
     float position3D[3];
@@ -40,16 +40,16 @@ typedef struct Transducer
 
 typedef enum ShootMode
 {
-    Raw=0,Calib=1
+    Raw=0, Calib=1
 }ShootMode;
 
 extern const char *TransducerPins[];
-extern Transducer *TransducerArray[NumTransducer];
+extern Transducer TransducerArray[NumTransducer];
 
 extern float Wave_K;
 
 void Transducer_Init(void);
-void UpdateFocusPoint(Point *P);
+void Update_Focus_Point(Point *P);
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *);
 uint8_t map_pin_name_to_gpio_port_num(const char *);

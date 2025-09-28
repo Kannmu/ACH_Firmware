@@ -1,13 +1,6 @@
 #pragma once
 #include "main.h"
 #include "transducer.h"
-# define EnableDutyAM 0
-
-# define EnableOOK 0
-
-# define TwinTrap 0
-
-#define EnableCircleMode 1
 
 # define TrajectoryPointsCount 100
 
@@ -15,18 +8,7 @@
 
 # define TrajectoryRefreshGap (1.0/TrajectoryRefreshRate)
 
-// Circle Mode
-
-#if EnableCircleMode
-# define CircleFrequency 1U
-
-# define CirclePeriodInMillisecond (1.0/CircleFrequency)*1000U
-
-# define CircleRadius 0.01
-#endif
-
 #define TestFocusPointDistance 0.01;
-
 
 typedef struct Point
 {
@@ -39,7 +21,6 @@ typedef struct Point
 // simulation.h
 extern Point *Trajectory[TrajectoryPointsCount];
 
-void CreateTestTrajectory();
-void CreateCircleTrajectory();
+void Create_Test_Trajectory();
 
-float EulerDistance(const float[3], const float[3]);
+float Euler_Distance(const float[3], const float[3]);

@@ -18,7 +18,8 @@
         "_UNICODE",
         "USE_HAL_DRIVER",
         "STM32H750xx",
-        "_USE_MATH_DEFINES"
+        "_USE_MATH_DEFINES",
+        "__FPU_PRESENT"
       ],
       "compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
       "intelliSenseMode": "windows-gcc-arm",
