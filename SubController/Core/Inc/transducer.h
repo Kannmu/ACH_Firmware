@@ -38,10 +38,6 @@ typedef struct Transducer
     float duty;
 } Transducer;
 
-typedef enum ShootMode
-{
-    Raw=0, Calib=1
-}ShootMode;
 
 extern const char *TransducerPins[];
 extern Transducer TransducerArray[NumTransducer];
@@ -49,7 +45,11 @@ extern Transducer TransducerArray[NumTransducer];
 extern float Wave_K;
 
 void Transducer_Init(void);
-void Update_Focus_Point(Point *P);
+void Clean_Transducers_Calib(void);
+void Set_Transducers_Calib(void);
+
+void Set_Focus_Point(Point *P);
+void Set_Plane_Wave(void);
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *);
 uint8_t map_pin_name_to_gpio_port_num(const char *);

@@ -1,9 +1,10 @@
-#define _USE_MATH_DEFINES
-#include "calibration.h"
-#include "dma_manager.h"
-#include "transducer.h"
+# define _USE_MATH_DEFINES
+# include "transducer.h"
+# include "calibration.h"
+# include "dma_manager.h"
+# include "custom_math.h"
 
-float Wave_K = ((M_PI_2*Transducer_Base_Freq)/SoundSpeed);
+float Wave_K = ((2.0*M_PI*Transducer_Base_Freq)/SoundSpeed);
 
 // Transducer Array
 const char *TransducerPins[] =
@@ -50,22 +51,47 @@ void Transducer_Init(void)
     }
 }
 
-// Update Simulation to Transducers Parameters
-void Update_Focus_Point(Point *P)
+void Clean_Transducers_Calib()
 {
-    for (int i = 0; i < NumTransducer; i++)
+    for (int i = 0; i < NumTransducer-1; i++)
+    {
+        TransducerArray[i].calib = 0;
+    }
+}
+
+void Set_Transducers_Calib()
+{
+    for (int i = 0; i < NumTransducer-1; i++)
+    {
+        TransducerArray[i].calib = Transducer_Calibration_Array[i] * BufferGapPerMicroseconds;
+    }
+}
+
+void Set_Plane_Wave()
+{
+    for (int i = 0; i < NumTransducer-1; i++)
+    {
+        TransducerArray[i].phase = 0;
+        TransducerArray[i].shift_buffer_bits = 0;
+    }
+}
+
+// Update Simulation to Transducers Parameters
+void Set_Focus_Point(Point *P)
+{
+    for (int i = 0; i < NumTransducer-1; i++)
     {
         // Distance Calculation
         TransducerArray[i].distance = Euler_Distance(TransducerArray[i].position3D, P->position);
 
         // Distance to Phase
-        TransducerArray[i].phase = (M_PI_2) - (fmod((TransducerArray[i].distance * Wave_K), (2.0 * M_PI)));
+        TransducerArray[i].phase = (2.0 * M_PI) - (fmod((TransducerArray[i].distance * Wave_K), (2.0 * M_PI)));
 
         // Phase to Gap Ticks
-        TransducerArray[i].shift_buffer_bits = (TransducerArray[i].phase / (M_PI_2 * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
+        TransducerArray[i].shift_buffer_bits = (TransducerArray[i].phase / (2.0 * M_PI * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
     }
-    Update_All_DMABuffer(Calib);
 }
+
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *pin_name)
 {

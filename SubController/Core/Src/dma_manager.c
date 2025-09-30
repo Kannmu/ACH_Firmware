@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "dma_manager.h"
+#include "debug.h"
 
 const float GPIO_Group_Output_Offset[DMA_CHANNELS] = {0U, 3, 6.5, 9, 11.5};
 // const float GPIO_Group_Output_Offset[DMA_CHANNELS] = {0U, 0U, 0U, 0U, 0U};
@@ -9,6 +10,8 @@ const uint32_t BufferResolution = DMA_Buffer_Resolution;
 const uint16_t half_period = DMA_Buffer_Resolution / 2;
 
 const uint16_t BufferGapPerMicroseconds = ((float)(1e-6)/TimeGapPerDMABufferBit);;
+
+const uint16_t preserved_pins_mask = KEY0_Pin | KEY1_Pin | LED2_Pin | LED1_Pin | LED0_Pin;
 
 DMA_HandleTypeDef* DMA_Stream_Handles[DMA_CHANNELS];
 
@@ -34,31 +37,28 @@ void Start_DMAs()
     HAL_DMA_Start(&hdma_memtomem_dma2_stream1, (uint32_t)(DMA_Buffer[4]), (uint32_t)(&(GPIOE->ODR)), sizeof(DMA_Buffer[4]) / sizeof(DMA_Buffer[4][0]));
 }
 
-void Update_All_DMABuffer(enum ShootMode mode)
+void Update_All_DMABuffer()
 {
     Clean_DMABuffer();
     for (size_t i = 0; i < NumTransducer; i++)
     {
-        Update_Single_DMABuffer(&TransducerArray[i], mode);
+        Update_Single_DMABuffer(&TransducerArray[i]);
     }
+    Restore_LED_State();
 }
 
-void Update_Single_DMABuffer(Transducer *currentTransducer, enum ShootMode mode)
+void Update_Single_DMABuffer(Transducer *currentTransducer)
 {
     const uint8_t port_num = currentTransducer->port_num;
     const uint16_t pin = currentTransducer->pin;
     
-    // 预计算常量部分
-    // const uint16_t offset = (mode==Raw)? 0 :currentTransducer->calib + (mode==Raw)? 0 : currentTransducer->shift_buffer_bits + (GPIO_Group_Output_Offset[port_num] * BufferGapPerMicroseconds);
-
     uint16_t phase_offset = 0;
 
-    if (mode != Raw) {
-        // 这才是清晰的写法，而不是那堆垃圾三元运算符
-        phase_offset = currentTransducer->calib + currentTransducer->shift_buffer_bits;
-    }
+    phase_offset = currentTransducer->calib + currentTransducer->shift_buffer_bits;
 
     phase_offset += (uint16_t)(GPIO_Group_Output_Offset[port_num] * BufferGapPerMicroseconds);
+
+    phase_offset = (uint16_t)(phase_offset % BufferResolution);
     
     for (size_t j = 0; j < BufferResolution; j++)
     {
@@ -77,3 +77,16 @@ void Clean_DMABuffer()
 {
     memset(DMA_Buffer, 0x0000, sizeof(DMA_Buffer));
 }
+
+// void Clean_DMABuffer()
+// {
+//     for (size_t i = 0; i < DMA_Buffer_Resolution; i++)
+//     {
+//         DMA_Buffer[0][i] &= preserved_pins_mask;
+//     }
+
+//     for (size_t i = 1; i < DMA_CHANNELS; i++)
+//     {
+//         memset(DMA_Buffer[i], 0x0000, sizeof(DMA_Buffer[i]));
+//     }
+// }

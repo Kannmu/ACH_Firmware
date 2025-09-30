@@ -14,7 +14,8 @@
         "calibration.h": "c",
         "stdint.h": "c",
         "usb_device.h": "c",
-        "stm32h7xx_it.h": "c"
+        "stm32h7xx_it.h": "c",
+        "custom_math.h": "c"
     },
     "C_Cpp.default.compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
     "cSpell.words": [

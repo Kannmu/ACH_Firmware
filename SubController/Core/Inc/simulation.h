@@ -1,14 +1,6 @@
-#pragma once
-#include "main.h"
-#include "transducer.h"
-
-# define TrajectoryPointsCount 100
-
-# define TrajectoryRefreshRate 100U
-
-# define TrajectoryRefreshGap (1.0/TrajectoryRefreshRate)
-
-#define TestFocusPointDistance 0.01;
+# pragma once
+# include "main.h"
+# include "transducer.h"
 
 typedef struct Point
 {
@@ -19,8 +11,7 @@ typedef struct Point
 }Point;
 
 // simulation.h
-extern Point *Trajectory[TrajectoryPointsCount];
 
-void Create_Test_Trajectory();
+void Switch_Simulation_Mode(void);
+int Get_Simulation_Mode(void);
 
-float Euler_Distance(const float[3], const float[3]);

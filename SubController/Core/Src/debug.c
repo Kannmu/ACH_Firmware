@@ -1,12 +1,17 @@
 #define _USE_MATH_DEFINES
 #include "debug.h"
+#include "simulation.h"
+#include "calibration.h"
 
 // debug.c
-const uint8_t LIVE_LED_PERIOD = 1;
-uint16_t led_ticks = 0;
+const uint16_t HALF_LED_BLINK_PERIOD = 500U;
+uint16_t led0_ticks = 0;
 uint32_t sysTickDelta= 0;
 uint32_t FPS = 0;
-uint32_t time_base = 0;
+int led0_state = 0;
+int last_led0_state = 0;
+uint16_t stm_test_ticks = 0;
+
 
 void Calculate_FPS()
 {
@@ -24,20 +29,26 @@ void Calculate_FPS()
 
 void LED_Indicate_Blink()
 {
-    const uint16_t LED_BLINK_THRESHOLD = LIVE_LED_PERIOD * 500U;
-    
-    if (led_ticks >= LED_BLINK_THRESHOLD)
+    uint8_t progress = led0_ticks / (HALF_LED_BLINK_PERIOD);
+    if (progress < 1)
     {
-        // 使用DMA缓冲区控制LED
-        for (int i = 0; i < DMA_Buffer_Resolution; i++)
-        {
-            DMA_Buffer[LED0_GPIO_Port_Num][i] ^= LED0_Pin;
-        }
-        led_ticks = 0U;
+        led0_state = 0;
     }
-    led_ticks++;  // 添加计数器递增
+    else if (progress >= 1 && progress < 2)
+    {
+        led0_state = 1;
+    }
+    else if (progress >= 2)
+    {
+        led0_ticks = 0U;
+    }
+    
+    if (led0_state != last_led0_state)
+    {
+        last_led0_state = led0_state;
+        Set_LED_State(LED0_Pin, led0_state);
+    }
 }
-
 
 void Send_Debugging_Info()
 {
@@ -64,3 +75,63 @@ void HAL_Delay_us(uint32_t nus)
         }
     };
 }
+
+void Restore_LED_State()
+{
+    for (int i = 0; i < DMA_Buffer_Resolution; i++)
+    {
+        // Restore Indicate LED State
+        if (led0_state)
+        {
+            DMA_Buffer[0][i] |= LED0_Pin; // LED 亮
+        }
+        else
+        {
+            DMA_Buffer[0][i] &= ~LED0_Pin; // LED 灭
+        }
+
+        // Restore Calibration LED State
+        if (Get_Calibration_Mode())
+        {
+            DMA_Buffer[0][i] |= LED1_Pin; // LED 亮
+        }
+        else
+        {
+            DMA_Buffer[0][i] &= ~LED1_Pin; // LED 灭
+        }
+
+        // Restore Simulation LED State
+        if (Get_Simulation_Mode())
+        {
+            DMA_Buffer[0][i] |= LED2_Pin; // LED 亮
+        }
+        else
+        {
+            DMA_Buffer[0][i] &= ~LED2_Pin; // LED 灭
+        }
+    }
+}
+
+void Set_LED_State(uint16_t pin, int state)
+{
+    for (int i = 0; i < DMA_Buffer_Resolution; i++)
+    {
+        if (state)
+        {
+            DMA_Buffer[0][i] |= pin; // LED 亮
+        }
+        else
+        {
+            DMA_Buffer[0][i] &= ~pin; // LED 灭
+        }
+    }
+}
+
+void Toggle_LED_State(uint16_t pin)
+{
+    for (int i = 0; i < DMA_Buffer_Resolution; i++)
+    {
+        DMA_Buffer[0][i] ^= pin; // LED 切换状态
+    }
+}
+

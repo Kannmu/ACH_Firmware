@@ -27,6 +27,7 @@
 #include "transducer.h"
 #include "simulation.h"
 #include "calibration.h"
+#include "custom_math.h"
 #include "debug.h"
 
 /* USER CODE END Includes */
@@ -125,7 +126,12 @@ int main(void)
   
   DMA_Init();
 
-  // Create_Test_Trajectory();
+  Point TestPoint = {
+    .position = {-0.01f, 0.0f, 0.0525f},
+    .strength = 100,
+    .spread = 1.0};
+
+ 
 
   /* USER CODE END 2 */
 
@@ -140,9 +146,25 @@ int main(void)
     // Calibration Mode Switch
     Switch_Calibration_Mode();
 
-    // Update Trajectory
+    // Simulation Mode Switch
 
-    HAL_Delay(100);
+    // Switch_Simulation_Mode();
+
+    // Generate 200Hz Test Trajectory
+    if(stm_test_ticks >= 5) {
+      stm_test_ticks = 0;
+      // Oscillate TestPoint in X direction between -0.01f and 0.01f
+      if(TestPoint.position[0] >= 0.01f) {
+        TestPoint.position[0] = -0.005f;
+        TestPoint.position[1] = -0.005f;
+      } 
+      else if(TestPoint.position[0] <= -0.01f) {
+        TestPoint.position[0] = 0.005f;
+        TestPoint.position[1] = 0.005f;
+      }
+      Set_Focus_Point(&TestPoint);
+      Update_All_DMABuffer();
+    }
 
     /* USER CODE END WHILE */
 
@@ -614,9 +636,9 @@ void Error_Handler(void)
 
   while (1)
   {
-    TOGGLE_PIN(LED0_GPIO_Port, LED0_Pin);
-    TOGGLE_PIN(LED1_GPIO_Port, LED1_Pin);
-    TOGGLE_PIN(LED2_GPIO_Port, LED2_Pin);
+    Toggle_LED_State(LED0_Pin);
+    Toggle_LED_State(LED1_Pin);
+    Toggle_LED_State(LED2_Pin);
     HAL_Delay(500);
   }
   /* USER CODE END Error_Handler_Debug */

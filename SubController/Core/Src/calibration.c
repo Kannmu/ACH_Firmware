@@ -26,21 +26,23 @@ int calibration_mode = 0; // 0 for not in calibration mode, 1 for in calibration
 
 // 校准参数说明：每个元素对应换能器的延迟校准值（单位：微秒us）
 float Transducer_Calibration_Array[] = {
-    24, 10, 24, 23, 23, 11, 21, 12,
-    11.5, 7, 23.5, 9.5, 23, 8, 9, 22,
-    5, 24, 12, 22, 8, 10, 20, 24,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
+    26, 10, 24, 23, 22.5, 11, 21, 12,
+    11.5, 7.5, 25, 10, 23, 10, 9.5, 22,
+    4, 25, 12.5, 23.5, 8, 6.5, 20, 24,
+    10, 24, 10, 6, 24, 22.5, 22, 8,
+    23.5, 24, 24.5, 22, 19.5, 9.5, 10.5, 8,
+    6, 7, 8, 10, 22, 22.5, 24, 20.5,
+    9, 11, 6.5, 22, 11.5, 16, 10, 22,
+    26.5, 4, 25, 8.5, 14, 8.5, 10, 0,
     0
 };
+
 
 void Switch_Calibration_Mode()
 {
     static GPIO_PinState lastKey0State = GPIO_PIN_SET;
     GPIO_PinState currentKey0State = HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin);
+
     // Toggle Calibration Mode
     if(lastKey0State == GPIO_PIN_SET && currentKey0State == GPIO_PIN_RESET)
     {
@@ -48,27 +50,13 @@ void Switch_Calibration_Mode()
 
         if(calibration_mode)
         {
-            Update_All_DMABuffer(Raw);
+            Clean_Transducers_Calib();
         }
         else
         {
-            Update_All_DMABuffer(Calib);
+            Set_Transducers_Calib();
         }
-        // Update LED1 State
-        if(calibration_mode)
-        {
-            for (int i = 0; i < DMA_Buffer_Resolution; i++)
-            {
-                DMA_Buffer[0U][i] &= ~LED1_Pin; // 拉低引脚：通过清零对应位实现
-            }
-        }
-        else
-        {
-            for (int i = 0; i < DMA_Buffer_Resolution; i++)
-            {
-                DMA_Buffer[0U][i] |= LED1_Pin; // 拉高引脚：通过设置对应位实现
-            }
-        }
+        Update_All_DMABuffer();
     }
     lastKey0State = currentKey0State;
 }

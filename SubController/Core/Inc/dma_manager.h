@@ -26,10 +26,6 @@ extern const uint16_t BufferGapPerMicroseconds;
 
 void DMA_Init();
 void Start_DMAs();
-void Update_All_DMABuffer(enum ShootMode);
-void Update_Single_DMABuffer(Transducer *, enum ShootMode);
+void Update_All_DMABuffer();
+void Update_Single_DMABuffer(Transducer *);
 void Clean_DMABuffer();
-
-
-#define TOGGLE_PIN(port, pin) ((port)->ODR ^= (pin))
-#define SET_PIN(port, pin, value) ((value)?((port)->BSRR = (pin)):((port)->BSRR = (pin) << 16))

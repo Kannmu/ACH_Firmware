@@ -24,8 +24,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "dma_manager.h"
-#include "debug.h"
+# include "dma_manager.h"
+# include "debug.h"
+# include "simulation.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,9 +95,9 @@ void HardFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    TOGGLE_PIN(LED0_GPIO_Port, LED0_Pin);
-    TOGGLE_PIN(LED1_GPIO_Port, LED1_Pin);
-    TOGGLE_PIN(LED2_GPIO_Port, LED2_Pin);
+    Toggle_LED_State(LED0_Pin);
+    Toggle_LED_State(LED1_Pin);
+    Toggle_LED_State(LED2_Pin);
     HAL_Delay(500);
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
@@ -192,8 +193,8 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  time_base = (time_base + 1) % 3001;
-  led_ticks++;
+  led0_ticks++;
+  stm_test_ticks++;
   
   // CalculateFPS();
   /* USER CODE END SysTick_IRQn 0 */
