@@ -12,10 +12,13 @@
         "dma_manager.h": "c",
         "main.h": "c",
         "calibration.h": "c",
+        "communication.h": "c",
         "stdint.h": "c",
         "usb_device.h": "c",
         "stm32h7xx_it.h": "c",
-        "custom_math.h": "c"
+        "custom_math.h": "c",
+        "utiles.h": "c",
+        "usbd_cdc_if.h": "c"
     },
     "C_Cpp.default.compilerPath": "D:\\Software\\MinGW\\bin\\gcc.exe",
     "cSpell.words": [

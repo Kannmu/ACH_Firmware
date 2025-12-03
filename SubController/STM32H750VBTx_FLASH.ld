@@ -114,7 +114,7 @@ SECTIONS
   } >FLASH
 
   .dma (NOLOAD) : ALIGN(4) {
-          KEEP(*(.dma))
+        KEEP(*(.dma))
   } >RAM_D1
 
   .preinit_array     :

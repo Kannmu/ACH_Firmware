@@ -1,26 +1,8 @@
-/* USER CODE BEGIN Header */
-/**
- ******************************************************************************
- * @file           : calibration.c
- * @brief          : calibration
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2024 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
-
 #define _USE_MATH_DEFINES
 #include "calibration.h"
 #include "transducer.h"
 #include "dma_manager.h"
-#include "debug.h"
+#include "utiles.h"
 
 int calibration_mode = 0; // 0 for not in calibration mode, 1 for in calibration mode
 

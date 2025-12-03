@@ -20,12 +20,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32h7xx_it.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 # include "dma_manager.h"
-# include "debug.h"
+# include "utiles.h"
 # include "simulation.h"
 /* USER CODE END Includes */
 

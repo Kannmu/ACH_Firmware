@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "dma_manager.h"
-#include "debug.h"
+#include "utiles.h"
 
 const float GPIO_Group_Output_Offset[DMA_CHANNELS] = {0U, 3, 6.5, 9, 11.5};
 // const float GPIO_Group_Output_Offset[DMA_CHANNELS] = {0U, 0U, 0U, 0U, 0U};

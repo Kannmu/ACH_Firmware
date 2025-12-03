@@ -1,29 +1,15 @@
-/* USER CODE BEGIN Header */
-/**
- ******************************************************************************
- * @file           : simulation.c
- * @brief          : simulation
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2024 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
 #define _USE_MATH_DEFINES
 #include "simulation.h"
 #include "calibration.h"
-#include "debug.h"
+#include "utiles.h"
 
 Point StaticFocusPoint = {
     .position = {0.0f, 0.0f, 0.0525f},
     .strength = 100,
-    .spread = 1.0};
+    .vibration = {0.0f, 0.0f, 0.0f},
+    .amplitude = 0.0f,
+    .frequency = 0.0f
+};
 
 int simulation_mode = 0;
 

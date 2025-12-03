@@ -25,15 +25,13 @@ extern uint32_t sysTickDelta;
 extern uint32_t FPS;
 extern uint16_t stm_test_ticks;
 
-
-
 void LED_Indicate_Blink();
-void Send_Debugging_Info();
 void Calculate_FPS();
 void HAL_Delay_us(uint32_t nus);
 void Restore_LED_State();
 void Set_LED_State(uint16_t pin, int state);
 void Toggle_LED_State(uint16_t pin);
-
+float Get_Voltage(void);
+float Get_Temperature(void);
 
 

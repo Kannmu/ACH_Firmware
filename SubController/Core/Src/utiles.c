@@ -1,5 +1,5 @@
 #define _USE_MATH_DEFINES
-#include "debug.h"
+#include "utiles.h"
 #include "simulation.h"
 #include "calibration.h"
 
@@ -11,7 +11,6 @@ uint32_t FPS = 0;
 int led0_state = 0;
 int last_led0_state = 0;
 uint16_t stm_test_ticks = 0;
-
 
 void Calculate_FPS()
 {
@@ -48,12 +47,6 @@ void LED_Indicate_Blink()
         last_led0_state = led0_state;
         Set_LED_State(LED0_Pin, led0_state);
     }
-}
-
-void Send_Debugging_Info()
-{
-
-
 }
 
 void HAL_Delay_us(uint32_t nus)
@@ -134,4 +127,47 @@ void Toggle_LED_State(uint16_t pin)
         DMA_Buffer[0][i] ^= pin; // LED 切换状态
     }
 }
+
+extern ADC_HandleTypeDef hadc3;
+
+static void Get_ADC3_Values(uint32_t *temp_raw, uint32_t *vref_raw)
+{
+    HAL_ADC_Start(&hadc3);
+    if (HAL_ADC_PollForConversion(&hadc3, 100) == HAL_OK)
+    {
+        *temp_raw = HAL_ADC_GetValue(&hadc3);
+    }
+    if (HAL_ADC_PollForConversion(&hadc3, 100) == HAL_OK)
+    {
+        *vref_raw = HAL_ADC_GetValue(&hadc3);
+    }
+    HAL_ADC_Stop(&hadc3);
+}
+
+float Get_Voltage(void)
+{
+    uint32_t temp_raw = 0, vref_raw = 0;
+    Get_ADC3_Values(&temp_raw, &vref_raw);
+    
+    // Calculate VDDA in mV
+    uint32_t vdda_mv = __HAL_ADC_CALC_VREFANALOG_VOLTAGE(vref_raw, ADC_RESOLUTION_16B);
+    
+    // Return Voltage in V
+    return (float)vdda_mv / 1000.0f;
+}
+
+float Get_Temperature(void)
+{
+    uint32_t temp_raw = 0, vref_raw = 0;
+    Get_ADC3_Values(&temp_raw, &vref_raw);
+    
+    // Calculate VDDA first as it is needed for Temperature calculation
+    uint32_t vdda_mv = __HAL_ADC_CALC_VREFANALOG_VOLTAGE(vref_raw, ADC_RESOLUTION_16B);
+    
+    // Calculate Temperature in Degree Celsius
+    int32_t temperature = __HAL_ADC_CALC_TEMPERATURE(vdda_mv, temp_raw, ADC_RESOLUTION_16B);
+    
+    return (float)temperature;
+}
+
 

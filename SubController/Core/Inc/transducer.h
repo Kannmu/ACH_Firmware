@@ -18,6 +18,7 @@
 
 typedef struct Point Point;
 
+ 
 // Transducer Class
 typedef struct Transducer
 {
