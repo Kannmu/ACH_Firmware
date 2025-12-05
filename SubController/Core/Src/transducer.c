@@ -77,12 +77,12 @@ void Set_Plane_Wave()
 }
 
 // Update Simulation to Transducers Parameters
-void Set_Focus_Point(Point *P)
+void Set_Focus_Point(float *position)
 {
     for (int i = 0; i < NumTransducer-1; i++)
     {
         // Distance Calculation
-        TransducerArray[i].distance = Euler_Distance(TransducerArray[i].position3D, P->position);
+        TransducerArray[i].distance = Euler_Distance(TransducerArray[i].position3D, position);
 
         // Distance to Phase
         TransducerArray[i].phase = (2.0 * M_PI) - (fmod((TransducerArray[i].distance * Wave_K), (2.0 * M_PI)));

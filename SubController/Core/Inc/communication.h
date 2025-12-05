@@ -3,6 +3,8 @@
 
 #include "main.h"
 #include "transducer.h"
+#include "calibration.h"
+#include "simulation.h"
 #include "usbd_cdc_if.h"
 
 // 协议定义
@@ -20,8 +22,9 @@
 // 响应类型 (UMH -> PC)
 #define RSP_ACK                 0x80
 #define RSP_NACK                0x81
-#define RSP_RETURN_STATUS       0x82
-#define RSP_PING_ACK            0x83
+#define RSP_PACK                0x82
+#define RSP_RETURN_STATUS       0x83
+#define RSP_PING_ACK            0x84
 #define RSP_ERROR_CODE          0xFF
 
 // 协议帧结构

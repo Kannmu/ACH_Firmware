@@ -180,21 +180,49 @@ void Comm_Process_Received_Data(uint8_t* data, uint32_t length)
                             Comm_Handle_Ping_Command(rx_buffer.frame.data, rx_buffer.frame.data_length);
                             break;
                         case CMD_SET_POINT:
+                        {
+                            if (rx_buffer.frame.data_length >= 32)
+                            {
+                                Point point;
+                                uint8_t *pData = rx_buffer.frame.data;
+                                int offset = 0;
+                                memcpy(&point.position[0], &pData[offset], 4); offset += 4;
+                                memcpy(&point.position[1], &pData[offset], 4); offset += 4;
+                                memcpy(&point.position[2], &pData[offset], 4); offset += 4;
+                                memcpy(&point.strength,    &pData[offset], 4); offset += 4;
+                                memcpy(&point.vibration[0],&pData[offset], 4); offset += 4;
+                                memcpy(&point.vibration[1],&pData[offset], 4); offset += 4;
+                                memcpy(&point.vibration[2],&pData[offset], 4); offset += 4;
+                                memcpy(&point.frequency,   &pData[offset], 4); 
+
+                                Comm_Send_Response(RSP_PACK, (uint8_t*)&updateDMABufferDeltaTime, sizeof(double));
+                                Update_Focus_Point(&point);
+                            }
+                            else
+                            {
+                                Comm_Send_Response(RSP_ERROR_CODE, NULL, 0);
+                            }
+                            break;
+                        }
                         case CMD_ENABLE_DISABLE:
                         case CMD_GET_STATUS:
                         {
-                            // Data: Voltage, Temperature
-                            // Byte Structure: 1 bit: IsEnabled(1 byte), float: Voltage(4 bytes), float: Temperature(4 bytes)
+                            int offset = 0;
                             float voltage, temperature;
                             voltage = Get_Voltage();
                             temperature = Get_Temperature();
+                            float loop_freq = System_Loop_Freq;
+                            uint32_t calibration_mode =  Get_Calibration_Mode();
+                            uint32_t simulation_mode = Get_Simulation_Mode();
 
-                            // 打包数据
-                            uint8_t response_data[8];
-                            memcpy(response_data, &voltage, sizeof(voltage));
-                            memcpy(response_data + 4, &temperature, sizeof(temperature));
-
-                            Comm_Send_Response(RSP_RETURN_STATUS, response_data, 8);
+                            uint8_t response_data[20];
+                            memcpy(response_data + offset, &voltage, sizeof(voltage)); offset += sizeof(voltage);
+                            memcpy(response_data + offset, &temperature, sizeof(temperature)); offset += sizeof(temperature);
+                            memcpy(response_data + offset, &loop_freq, sizeof(loop_freq)); offset += sizeof(loop_freq);
+                            memcpy(response_data + offset, &calibration_mode, sizeof(calibration_mode)); offset += sizeof(calibration_mode);
+                            memcpy(response_data + offset, &simulation_mode, sizeof(simulation_mode)); offset += sizeof(simulation_mode);
+                            
+                            Comm_Send_Response(RSP_RETURN_STATUS, response_data, sizeof(response_data));
                             break;
                         }
                         default:

@@ -24,6 +24,8 @@ extern uint16_t led0_ticks;
 extern uint32_t sysTickDelta;
 extern uint32_t FPS;
 extern uint16_t stm_test_ticks;
+extern float System_Loop_Freq;
+extern double updateDMABufferDeltaTime;
 
 void LED_Indicate_Blink();
 void Calculate_FPS();

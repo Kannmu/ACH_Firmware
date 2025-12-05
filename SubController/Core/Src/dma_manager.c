@@ -39,12 +39,15 @@ void Start_DMAs()
 
 void Update_All_DMABuffer()
 {
+    uint32_t start_cyc = DWT->CYCCNT;
     Clean_DMABuffer();
     for (size_t i = 0; i < NumTransducer; i++)
     {
         Update_Single_DMABuffer(&TransducerArray[i]);
     }
     Restore_LED_State();
+    uint32_t end_cyc = DWT->CYCCNT;
+    updateDMABufferDeltaTime =  (double)((double)(end_cyc - start_cyc) / (double)SystemCoreClock);
 }
 
 void Update_Single_DMABuffer(Transducer *currentTransducer)

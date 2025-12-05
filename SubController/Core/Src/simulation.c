@@ -3,15 +3,15 @@
 #include "calibration.h"
 #include "utiles.h"
 
-Point StaticFocusPoint = {
-    .position = {0.0f, 0.0f, 0.0525f},
+int simulation_mode = 1;
+
+Point FocusPoint = {
+    .position = {0.0f, 0.0f, 0.05f},
     .strength = 100,
     .vibration = {0.0f, 0.0f, 0.0f},
-    .amplitude = 0.0f,
-    .frequency = 0.0f
+    .frequency = 0.0f,
+    .phase = 0
 };
-
-int simulation_mode = 0;
 
 void Switch_Simulation_Mode()
 {
@@ -28,16 +28,54 @@ void Switch_Simulation_Mode()
         else if (simulation_mode == 1)
         {
             // Static Focus Point
-            Set_Focus_Point(&StaticFocusPoint);
+            Set_Focus_Point(FocusPoint.position);
         }
         Update_All_DMABuffer();
-        
     }
     lastKey1State = currentKey1State;
 }
+
 
 int Get_Simulation_Mode()
 {
     return simulation_mode;
 }
+
+void Update_Focus_Point(Point *point)
+{
+    FocusPoint = *point;
+}
+
+void Apply_Vibration()
+{
+    if(Get_Calibration_Mode() == 1 && Get_Simulation_Mode() == 1)
+    {
+        // Toggle FocusPoint.phase with frequency of FocusPoint.frequency
+        static uint32_t lastToggleTick = 0;
+        if (FocusPoint.frequency > 0.001f)
+        {
+            uint32_t interval = (uint32_t)(500.0f / FocusPoint.frequency);
+            if (HAL_GetTick() - lastToggleTick >= interval)
+            {
+                FocusPoint.phase = 1 - FocusPoint.phase;
+                lastToggleTick = HAL_GetTick();
+            }
+        }
+
+        float pos[3];
+        if (FocusPoint.phase == 0) {
+            pos[0] = FocusPoint.position[0];
+            pos[1] = FocusPoint.position[1];
+            pos[2] = FocusPoint.position[2];
+        } else {
+            pos[0] = FocusPoint.position[0] + FocusPoint.vibration[0];
+            pos[1] = FocusPoint.position[1] + FocusPoint.vibration[1];
+            pos[2] = FocusPoint.position[2] + FocusPoint.vibration[2];
+        }
+        Set_Focus_Point(pos);
+        Update_All_DMABuffer();
+    }
+}
+
+
 

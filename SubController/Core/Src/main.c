@@ -110,7 +110,9 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  // Initiation
+  
+  static uint32_t loop_count = 0;
+  static uint32_t last_check_tick = 0;
 
   /* USER CODE END Init */
 
@@ -133,25 +135,28 @@ int main(void)
   MX_TIM1_Init();
   MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
-  Comm_Init();
-
-  Transducer_Init();
   
+  Comm_Init();
+  Init_DWT();
+  Transducer_Init();
   DMA_Init();
-
-  Point TestPoint = {
-    .position = {-0.01f, 0.0f, 0.0525f},
-    .strength = 100,
-    .amplitude = 1.0f,
-    .frequency = 2.0f
-  };
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  
+
   while (1)
   {
+    loop_count++;
+    if (HAL_GetTick() - last_check_tick >= 1000)
+    {
+      System_Loop_Freq = (float)loop_count;
+      loop_count = 0;
+      last_check_tick = HAL_GetTick();
+    }
+
     sysTickDelta = SysTick->VAL;
 
     LED_Indicate_Blink();
@@ -160,10 +165,10 @@ int main(void)
     Switch_Calibration_Mode();
 
     // Simulation Mode Switch
-
     Switch_Simulation_Mode();
 
-    
+    Apply_Vibration();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

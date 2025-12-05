@@ -11,6 +11,17 @@ uint32_t FPS = 0;
 int led0_state = 0;
 int last_led0_state = 0;
 uint16_t stm_test_ticks = 0;
+float System_Loop_Freq = 0.0f;
+double updateDMABufferDeltaTime = 0;
+
+void Init_DWT()
+{
+    if (!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk)) {
+        CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    }
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
 
 void Calculate_FPS()
 {

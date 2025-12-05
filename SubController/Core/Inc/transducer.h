@@ -18,7 +18,6 @@
 
 typedef struct Point Point;
 
- 
 // Transducer Class
 typedef struct Transducer
 {
@@ -49,7 +48,7 @@ void Transducer_Init(void);
 void Clean_Transducers_Calib(void);
 void Set_Transducers_Calib(void);
 
-void Set_Focus_Point(Point *P);
+void Set_Focus_Point(float *position);
 void Set_Plane_Wave(void);
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *);
