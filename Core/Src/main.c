@@ -157,9 +157,6 @@ int main(void)
       last_check_tick = HAL_GetTick();
     }
 
-    sysTickDelta = SysTick->VAL;
-
-    LED_Indicate_Blink();
 
     // Calibration Mode Switch
     Switch_Calibration_Mode();
@@ -168,6 +165,9 @@ int main(void)
     Switch_Simulation_Mode();
 
     Apply_Vibration();
+
+    sysTickDelta = SysTick->VAL;
+    LED_Indicate_Blink();
 
     /* USER CODE END WHILE */
 

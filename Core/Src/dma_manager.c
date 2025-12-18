@@ -45,7 +45,6 @@ void Update_All_DMABuffer()
     {
         Update_Single_DMABuffer(&TransducerArray[i]);
     }
-    Restore_LED_State();
     uint32_t end_cyc = DWT->CYCCNT;
     updateDMABufferDeltaTime =  (double)((double)(end_cyc - start_cyc) / (double)SystemCoreClock);
 }
@@ -55,23 +54,35 @@ void Update_Single_DMABuffer(Transducer *currentTransducer)
     const uint8_t port_num = currentTransducer->port_num;
     const uint16_t pin = currentTransducer->pin;
     
-    uint16_t phase_offset = 0;
-
-    phase_offset = currentTransducer->calib + currentTransducer->shift_buffer_bits;
+    uint16_t phase_offset = currentTransducer->calib + currentTransducer->shift_buffer_bits;
 
     phase_offset += (uint16_t)(GPIO_Group_Output_Offset[port_num] * BufferGapPerMicroseconds);
 
-    phase_offset = (uint16_t)(phase_offset % BufferResolution);
+    phase_offset %= BufferResolution;
     
-    for (size_t j = 0; j < BufferResolution; j++)
+    uint32_t start_idx = (BufferResolution - phase_offset) % BufferResolution;
+    uint32_t end_idx = start_idx + half_period;
+    uint16_t* pBuffer = DMA_Buffer[port_num];
+
+    if (end_idx <= BufferResolution)
     {
-        if ((uint16_t)((j + phase_offset) / half_period) % 2 == 0)
+        // No wrap-around
+        for (size_t j = start_idx; j < end_idx; j++)
         {
-            DMA_Buffer[port_num][j] |= (pin); // Set to High Level
+            pBuffer[j] |= pin;
         }
-        else
+    }
+    else
+    {
+        // Wrap-around: Fill to end, then start from beginning
+        for (size_t j = start_idx; j < BufferResolution; j++)
         {
-            DMA_Buffer[port_num][j] &= ~(pin); // Set to Low Level
+            pBuffer[j] |= pin;
+        }
+        size_t remaining = end_idx - BufferResolution;
+        for (size_t j = 0; j < remaining; j++)
+        {
+            pBuffer[j] |= pin;
         }
     }
 }
@@ -79,17 +90,5 @@ void Update_Single_DMABuffer(Transducer *currentTransducer)
 void Clean_DMABuffer()
 {
     memset(DMA_Buffer, 0x0000, sizeof(DMA_Buffer));
+    Restore_LED_State();
 }
-
-// void Clean_DMABuffer()
-// {
-//     for (size_t i = 0; i < DMA_Buffer_Resolution; i++)
-//     {
-//         DMA_Buffer[0][i] &= preserved_pins_mask;
-//     }
-
-//     for (size_t i = 1; i < DMA_CHANNELS; i++)
-//     {
-//         memset(DMA_Buffer[i], 0x0000, sizeof(DMA_Buffer[i]));
-//     }
-// }

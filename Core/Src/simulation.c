@@ -4,6 +4,7 @@
 #include "utiles.h"
 
 int simulation_mode = 1;
+static uint32_t lastToggleTick = 0;
 
 Point FocusPoint = {
     .position = {0.0f, 0.0f, 0.05f},
@@ -48,20 +49,22 @@ void Update_Focus_Point(Point *point)
 
 void Apply_Vibration()
 {
+    if (FocusPoint.frequency > 0.001f)
+    {
+        uint32_t interval = (uint32_t)(500.0f / FocusPoint.frequency);
+        if (HAL_GetTick() - lastToggleTick >= interval)
+        {
+            FocusPoint.phase = 1 - FocusPoint.phase;
+            lastToggleTick = HAL_GetTick();
+        }
+        else
+        {
+            return;
+        }
+    }
+
     if(Get_Calibration_Mode() == 1 && Get_Simulation_Mode() == 1)
     {
-        // Toggle FocusPoint.phase with frequency of FocusPoint.frequency
-        static uint32_t lastToggleTick = 0;
-        if (FocusPoint.frequency > 0.001f)
-        {
-            uint32_t interval = (uint32_t)(500.0f / FocusPoint.frequency);
-            if (HAL_GetTick() - lastToggleTick >= interval)
-            {
-                FocusPoint.phase = 1 - FocusPoint.phase;
-                lastToggleTick = HAL_GetTick();
-            }
-        }
-
         float pos[3];
         if (FocusPoint.phase == 0) {
             pos[0] = FocusPoint.position[0];

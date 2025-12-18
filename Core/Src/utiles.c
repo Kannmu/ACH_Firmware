@@ -42,7 +42,7 @@ void LED_Indicate_Blink()
     uint8_t progress = led0_ticks / (HALF_LED_BLINK_PERIOD);
     if (progress < 1)
     {
-        led0_state = 0;
+        led0_state = 0U;
     }
     else if (progress >= 1 && progress < 2)
     {

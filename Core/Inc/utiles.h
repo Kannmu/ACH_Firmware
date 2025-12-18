@@ -27,6 +27,7 @@ extern uint16_t stm_test_ticks;
 extern float System_Loop_Freq;
 extern double updateDMABufferDeltaTime;
 
+void Init_DWT(void);
 void LED_Indicate_Blink();
 void Calculate_FPS();
 void HAL_Delay_us(uint32_t nus);
@@ -35,5 +36,4 @@ void Set_LED_State(uint16_t pin, int state);
 void Toggle_LED_State(uint16_t pin);
 float Get_Voltage(void);
 float Get_Temperature(void);
-
 
