@@ -85,3 +85,5 @@ build/
 !*.bin
 !*.hex
 
+.trae/
+.vscode/
