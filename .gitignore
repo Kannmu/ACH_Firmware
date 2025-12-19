@@ -84,6 +84,7 @@ build/
 !*.axf
 !*.bin
 !*.hex
+!Middlewares/
 
 .trae/
 .vscode/
