@@ -14,6 +14,15 @@ Point FocusPoint = {
     .phase = 0
 };
 
+Point IdlePoint = {
+    .position = {0.0f, 0.0f, 0.05f},
+    .strength = 0,
+    .vibration = {0.0f, 0.0f, 0.0f},
+    .frequency = 0.0f,
+    .phase = 0
+};
+
+
 void Switch_Simulation_Mode()
 {
     static GPIO_PinState lastKey1State = GPIO_PIN_SET;
@@ -36,7 +45,6 @@ void Switch_Simulation_Mode()
     lastKey1State = currentKey1State;
 }
 
-
 int Get_Simulation_Mode()
 {
     return simulation_mode;
@@ -49,7 +57,7 @@ void Update_Focus_Point(Point *point)
 
 void Apply_Vibration()
 {
-    if (FocusPoint.frequency > 0.001f)
+    if (FocusPoint.frequency > 1.0f)
     {
         uint32_t interval = (uint32_t)(500.0f / FocusPoint.frequency);
         if (HAL_GetTick() - lastToggleTick >= interval)
@@ -61,6 +69,10 @@ void Apply_Vibration()
         {
             return;
         }
+    }
+    else
+    {
+        return;
     }
 
     if(Get_Calibration_Mode() == 1 && Get_Simulation_Mode() == 1)

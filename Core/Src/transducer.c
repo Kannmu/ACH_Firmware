@@ -85,13 +85,32 @@ void Set_Focus_Point(float *position)
         TransducerArray[i].distance = Euler_Distance(TransducerArray[i].position3D, position);
 
         // Distance to Phase
-        TransducerArray[i].phase = (2.0 * M_PI) - (fmod((TransducerArray[i].distance * Wave_K), (2.0 * M_PI)));
+        TransducerArray[i].phase = Distance_to_Phase(TransducerArray[i].distance);
 
         // Phase to Gap Ticks
-        TransducerArray[i].shift_buffer_bits = (TransducerArray[i].phase / (2.0 * M_PI * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
+        TransducerArray[i].shift_buffer_bits = Phase_to_Gap_Ticks(TransducerArray[i].phase);
     }
 }
 
+// Set Phases to Transducers
+void Set_Phases(float phases[])
+{
+    for (int i = 0; i < NumTransducer-1; i++)
+    {
+        TransducerArray[i].phase = phases[i];
+        TransducerArray[i].shift_buffer_bits = Phase_to_Gap_Ticks(TransducerArray[i].phase);
+    }
+}
+
+float Distance_to_Phase(float distance)
+{
+    return (2.0 * M_PI) - (fmod((distance * Wave_K), (2.0 * M_PI)));
+}
+
+float Phase_to_Gap_Ticks(float phase)
+{
+    return (phase / (2.0 * M_PI * Transducer_Base_Freq)) / TimeGapPerDMABufferBit;
+}
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *pin_name)
 {

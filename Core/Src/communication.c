@@ -176,9 +176,29 @@ void Comm_Process_Received_Data(uint8_t* data, uint32_t length)
                     
                     // 处理完整的帧
                     switch (rx_buffer.frame.cmd_type) {
+                        case CMD_ENABLE_DISABLE:
                         case CMD_PING:
                             Comm_Handle_Ping_Command(rx_buffer.frame.data, rx_buffer.frame.data_length);
                             break;
+                        case CMD_GET_STATUS:
+                        {
+                            int offset = 0;
+                            float voltage, temperature;
+                            voltage = Get_Voltage();
+                            temperature = Get_Temperature();
+                            float loop_freq = System_Loop_Freq;
+                            uint32_t calibration_mode =  Get_Calibration_Mode();
+                            uint32_t simulation_mode = Get_Simulation_Mode();
+                            uint8_t response_data[20];
+                            memcpy(response_data + offset, &voltage, sizeof(voltage)); offset += sizeof(voltage);
+                            memcpy(response_data + offset, &temperature, sizeof(temperature)); offset += sizeof(temperature);
+                            memcpy(response_data + offset, &loop_freq, sizeof(loop_freq)); offset += sizeof(loop_freq);
+                            memcpy(response_data + offset, &calibration_mode, sizeof(calibration_mode)); offset += sizeof(calibration_mode);
+                            memcpy(response_data + offset, &simulation_mode, sizeof(simulation_mode)); offset += sizeof(simulation_mode);
+                            
+                            Comm_Send_Response(RSP_RETURN_STATUS, response_data, sizeof(response_data));
+                            break;
+                        }
                         case CMD_SET_POINT:
                         {
                             if (rx_buffer.frame.data_length >= 32)
@@ -194,7 +214,6 @@ void Comm_Process_Received_Data(uint8_t* data, uint32_t length)
                                 memcpy(&point.vibration[1],&pData[offset], 4); offset += 4;
                                 memcpy(&point.vibration[2],&pData[offset], 4); offset += 4;
                                 memcpy(&point.frequency,   &pData[offset], 4); 
-
                                 Comm_Send_Response(RSP_PACK, (uint8_t*)&updateDMABufferDeltaTime, sizeof(double));
                                 Update_Focus_Point(&point);
                             }
@@ -204,25 +223,22 @@ void Comm_Process_Received_Data(uint8_t* data, uint32_t length)
                             }
                             break;
                         }
-                        case CMD_ENABLE_DISABLE:
-                        case CMD_GET_STATUS:
+                        case CMD_SET_PHASES:
                         {
-                            int offset = 0;
-                            float voltage, temperature;
-                            voltage = Get_Voltage();
-                            temperature = Get_Temperature();
-                            float loop_freq = System_Loop_Freq;
-                            uint32_t calibration_mode =  Get_Calibration_Mode();
-                            uint32_t simulation_mode = Get_Simulation_Mode();
-
-                            uint8_t response_data[20];
-                            memcpy(response_data + offset, &voltage, sizeof(voltage)); offset += sizeof(voltage);
-                            memcpy(response_data + offset, &temperature, sizeof(temperature)); offset += sizeof(temperature);
-                            memcpy(response_data + offset, &loop_freq, sizeof(loop_freq)); offset += sizeof(loop_freq);
-                            memcpy(response_data + offset, &calibration_mode, sizeof(calibration_mode)); offset += sizeof(calibration_mode);
-                            memcpy(response_data + offset, &simulation_mode, sizeof(simulation_mode)); offset += sizeof(simulation_mode);
-                            
-                            Comm_Send_Response(RSP_RETURN_STATUS, response_data, sizeof(response_data));
+                            if (rx_buffer.frame.data_length >= 4)
+                            {
+                                float phases[NumTransducer-1];
+                                uint8_t *pData = rx_buffer.frame.data; // float[NumTransducer-1]
+                                memcpy(phases, pData, sizeof(phases));
+                                Comm_Send_Response(RSP_ACK, NULL, 0);
+                                Set_Phases(phases);
+                                FocusPoint = IdlePoint;
+                                Update_All_DMABuffer();
+                            }
+                            else
+                            {
+                                Comm_Send_Response(RSP_ERROR_CODE, NULL, 0);
+                            }
                             break;
                         }
                         default:

@@ -14,6 +14,8 @@ typedef struct Point
 
 extern Point FocusPoint;
 
+extern Point IdlePoint;
+
 void Switch_Simulation_Mode(void);
 int Get_Simulation_Mode(void);
 void Update_Focus_Point(Point *point);

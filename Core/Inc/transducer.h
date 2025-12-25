@@ -49,7 +49,11 @@ void Clean_Transducers_Calib(void);
 void Set_Transducers_Calib(void);
 
 void Set_Focus_Point(float *position);
+void Set_Phases(float phases[]);
 void Set_Plane_Wave(void);
+
+float Distance_to_Phase(float distance);
+float Phase_to_Gap_Ticks(float phase);
 
 GPIO_TypeDef *map_pin_name_to_gpio_port(const char *);
 uint8_t map_pin_name_to_gpio_port_num(const char *);
